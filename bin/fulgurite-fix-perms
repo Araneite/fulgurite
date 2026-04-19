@@ -1,0 +1,41 @@
+#!/usr/bin/env php
+<?php
+declare(strict_types=1);
+
+require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../src/FilesystemScopeConfigWriter.php';
+require_once __DIR__ . '/../src/FilesystemScopeGuard.php';
+
+if ($argc !== 2) {
+    fwrite(STDERR, "Usage: {$argv[0]} /chemin/du/depot\n");
+    exit(64);
+}
+
+$repoPath = trim((string) ($argv[1] ?? ''));
+
+try {
+    $repoPath = FilesystemScopeGuard::assertMutableTree($repoPath, 'chmod');
+
+    if (!@chmod($repoPath, 02770)) {
+        throw new RuntimeException('Impossible d appliquer chmod 2770 sur ' . $repoPath);
+    }
+
+    $iterator = new RecursiveIteratorIterator(
+        new RecursiveDirectoryIterator($repoPath, FilesystemIterator::SKIP_DOTS),
+        RecursiveIteratorIterator::SELF_FIRST
+    );
+
+    foreach ($iterator as $item) {
+        $mode = $item->isDir() ? 02770 : 0660;
+        if (!@chmod($item->getPathname(), $mode)) {
+            throw new RuntimeException(
+                'Impossible d appliquer chmod ' . sprintf('%04o', $mode) . ' sur ' . $item->getPathname()
+            );
+        }
+    }
+} catch (Throwable $e) {
+    fwrite(STDERR, $e->getMessage() . PHP_EOL);
+    exit(64);
+}
+
+exit(0);

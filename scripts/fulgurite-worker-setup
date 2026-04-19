@@ -1,0 +1,184 @@
+#!/usr/bin/env bash
+# =============================================================================
+# fulgurite-worker-setup — Fulgurite worker installation helper via systemd
+# =============================================================================
+# This script must be called via sudo by the web user (e.g. www-data).
+#
+# Prerequisites (run ONCE as root admin):
+#   sudo chown root:root /path/to/scripts/fulgurite-worker-setup
+#   sudo chmod 750 /path/to/scripts/fulgurite-worker-setup
+#   echo "www-data ALL=(root) NOPASSWD: /path/to/scripts/fulgurite-worker-setup" \
+#       | sudo tee /etc/sudoers.d/fulgurite-worker
+#   sudo chmod 440 /etc/sudoers.d/fulgurite-worker
+#
+# Usage :
+#   fulgurite-worker-setup install --service=<name> --php-bin=<path> \
+#       --worker-script=<path> --log-file=<path> --user=<user> \
+#       --name=<worker-name> --sleep=<s> --limit=<n> --stale-minutes=<m>
+#
+#   fulgurite-worker-setup uninstall --service=<name>
+#
+#   fulgurite-worker-setup --check
+#     (used by PHP to verify sudo works without password)
+# =============================================================================
+
+set -euo pipefail
+
+SYSTEMD_DIR="/etc/systemd/system"
+
+# ─── Default values ───────────────────────────────────────────────────────────
+ACTION=""
+SERVICE=""
+PHP_BIN="/usr/bin/php"
+WORKER_SCRIPT=""
+LOG_FILE="/var/log/fulgurite/worker.log"
+WEB_USER="www-data"
+WEB_GROUP=""
+WORKER_NAME="default"
+SLEEP_SECONDS="5"
+JOB_LIMIT="3"
+STALE_MINUTES="30"
+
+# ─── Parsing des arguments ───────────────────────────────────────────────────
+for arg in "$@"; do
+    case "$arg" in
+        --check)          echo "ok"; exit 0 ;;
+        install|uninstall) ACTION="$arg" ;;
+        --service=*)      SERVICE="${arg#*=}" ;;
+        --php-bin=*)      PHP_BIN="${arg#*=}" ;;
+        --worker-script=*) WORKER_SCRIPT="${arg#*=}" ;;
+        --log-file=*)     LOG_FILE="${arg#*=}" ;;
+        --user=*)         WEB_USER="${arg#*=}" ;;
+        --group=*)        WEB_GROUP="${arg#*=}" ;;
+        --name=*)         WORKER_NAME="${arg#*=}" ;;
+        --sleep=*)        SLEEP_SECONDS="${arg#*=}" ;;
+        --limit=*)        JOB_LIMIT="${arg#*=}" ;;
+        --stale-minutes=*) STALE_MINUTES="${arg#*=}" ;;
+    esac
+done
+
+# ─── Validation commune ───────────────────────────────────────────────────────
+if [[ -z "$ACTION" ]]; then
+    echo "ERROR: action requise (install|uninstall)" >&2
+    exit 1
+fi
+
+if [[ -z "$SERVICE" ]]; then
+    echo "ERROR: --service est requis" >&2
+    exit 1
+fi
+
+# Nom de service : uniquement alphanum, tirets, points, doit finir en .service
+if [[ ! "$SERVICE" =~ ^[a-zA-Z0-9_.-]+\.service$ ]]; then
+    echo "ERROR: nom de service invalide : $SERVICE" >&2
+    exit 1
+fi
+
+SERVICE_FILE="${SYSTEMD_DIR}/${SERVICE}"
+
+# ─── install_worker ──────────────────────────────────────────────────────────
+install_worker() {
+    if [[ -z "$PHP_BIN" || -z "$WORKER_SCRIPT" ]]; then
+        echo "ERROR: --php-bin et --worker-script sont requis" >&2
+        exit 1
+    fi
+
+    # Validation des paths : no metacaractere shell
+    if [[ "$PHP_BIN" =~ [^a-zA-Z0-9/_.-] ]]; then
+        echo "ERROR: chemin php-bin invalide" >&2; exit 1
+    fi
+    if [[ "$WORKER_SCRIPT" =~ [^a-zA-Z0-9/_.-] ]]; then
+        echo "ERROR: chemin worker-script invalide" >&2; exit 1
+    fi
+    if [[ "$LOG_FILE" =~ [^a-zA-Z0-9/_.-] ]]; then
+        echo "ERROR: chemin log-file invalide" >&2; exit 1
+    fi
+    if [[ "$WEB_USER" =~ [^a-zA-Z0-9_-] ]]; then
+        echo "ERROR: nom d'utilisateur invalide" >&2; exit 1
+    fi
+    if [[ -z "$WEB_GROUP" ]]; then
+        WEB_GROUP="$WEB_USER"
+    fi
+    if [[ "$WEB_GROUP" =~ [^a-zA-Z0-9_-] ]]; then
+        echo "ERROR: nom de groupe invalide" >&2; exit 1
+    fi
+    if [[ "$WORKER_NAME" =~ [^a-zA-Z0-9_-] ]]; then
+        echo "ERROR: nom de worker invalide" >&2; exit 1
+    fi
+    if [[ ! "$SLEEP_SECONDS" =~ ^[0-9]+$ ]] || [[ ! "$JOB_LIMIT" =~ ^[0-9]+$ ]] || [[ ! "$STALE_MINUTES" =~ ^[0-9]+$ ]]; then
+        echo "ERROR: sleep/limit/stale-minutes doivent etre des entiers" >&2; exit 1
+    fi
+
+    LOG_DIR="$(dirname "$LOG_FILE")"
+    APP_ROOT="$(dirname "$(dirname "$WORKER_SCRIPT")")"
+
+    # Create le directory de logs
+    mkdir -p "$LOG_DIR"
+    chown "${WEB_USER}:${WEB_GROUP}" "$LOG_DIR" 2>/dev/null || true
+
+    # Create le directory data/run for le pid file if necessaire
+    DATA_RUN="$(dirname "$WORKER_SCRIPT")/../data/run"
+    mkdir -p "$DATA_RUN" 2>/dev/null || true
+    chown "${WEB_USER}:${WEB_GROUP}" "$DATA_RUN" 2>/dev/null || true
+
+    # Write le file unit
+    cat > "$SERVICE_FILE" <<UNIT_EOF
+[Unit]
+Description=Fulgurite Worker Daemon
+After=network.target
+
+[Service]
+Type=simple
+User=${WEB_USER}
+Group=${WEB_GROUP}
+WorkingDirectory=${APP_ROOT}
+ExecStart=${PHP_BIN} ${WORKER_SCRIPT} --name=${WORKER_NAME} --sleep=${SLEEP_SECONDS} --limit=${JOB_LIMIT} --stale-minutes=${STALE_MINUTES}
+Restart=on-failure
+RestartSec=10
+StandardOutput=append:${LOG_FILE}
+StandardError=append:${LOG_FILE}
+
+[Install]
+WantedBy=multi-user.target
+UNIT_EOF
+
+    echo "Fichier service ecrit : ${SERVICE_FILE}"
+
+    systemctl daemon-reload
+    echo "systemd recharge"
+
+    systemctl enable "$SERVICE"
+    echo "Service active au demarrage : ${SERVICE}"
+
+    systemctl start "$SERVICE"
+    echo "Service demarre : ${SERVICE}"
+
+    systemctl is-active "$SERVICE" && echo "STATUS: active" || echo "STATUS: inactive"
+}
+
+# ─── uninstall_worker ────────────────────────────────────────────────────────
+uninstall_worker() {
+    systemctl stop "$SERVICE" 2>/dev/null && echo "Service arrete : ${SERVICE}" || echo "Service deja arrete"
+    systemctl disable "$SERVICE" 2>/dev/null && echo "Service desactive : ${SERVICE}" || echo "Service deja desactive"
+
+    if [[ -f "$SERVICE_FILE" ]]; then
+        rm -f "$SERVICE_FILE"
+        echo "Fichier service supprime : ${SERVICE_FILE}"
+    else
+        echo "Fichier service absent (deja supprime)"
+    fi
+
+    systemctl daemon-reload
+    echo "systemd recharge"
+    echo "Desinstallation terminee"
+}
+
+# ─── dispatch ────────────────────────────────────────────────────────────────
+case "$ACTION" in
+    install)   install_worker ;;
+    uninstall) uninstall_worker ;;
+    *)
+        echo "ERROR: action inconnue : $ACTION" >&2
+        exit 1
+        ;;
+esac

@@ -1,0 +1,128 @@
+#!/usr/bin/env php
+<?php
+
+define('FULGURITE_CLI', true);
+
+if (PHP_SAPI !== 'cli') {
+    fwrite(STDERR, "Cette commande doit etre lancee localement en CLI.\n");
+    exit(64);
+}
+
+function usage(): void {
+    $script = basename(__FILE__);
+    fwrite(STDERR, "Usage: php bin/$script [--username admin] [--keep-2fa]\n");
+}
+
+function optionValue(array $argv, string $name, string $default): string {
+    foreach ($argv as $index => $arg) {
+        if ($arg === $name && isset($argv[$index + 1])) {
+            return (string) $argv[$index + 1];
+        }
+        if (str_starts_with($arg, $name . '=')) {
+            return substr($arg, strlen($name) + 1);
+        }
+    }
+
+    return $default;
+}
+
+if (in_array('--help', $argv, true) || in_array('-h', $argv, true)) {
+    usage();
+    exit(0);
+}
+
+$username = trim(optionValue($argv, '--username', 'admin'));
+$keep2fa = in_array('--keep-2fa', $argv, true);
+
+if ($username === '' || preg_match('/^[A-Za-z0-9_.@-]{3,64}$/', $username) !== 1) {
+    fwrite(STDERR, "Nom d utilisateur invalide. Utilisez 3 a 64 caracteres: lettres, chiffres, point, underscore, tiret ou @.\n");
+    exit(64);
+}
+
+require_once __DIR__ . '/../src/bootstrap.php';
+
+$token = rtrim(strtr(base64_encode(random_bytes(12)), '+/', '-_'), '=');
+$passwordHash = password_hash($token, PASSWORD_BCRYPT);
+$forceActions = [
+    UserManager::FORCE_ACTION_CHANGE_PASSWORD,
+    UserManager::FORCE_ACTION_SETUP_2FA,
+];
+$forceActionsJson = json_encode($forceActions, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?: '[]';
+$now = Database::nowExpression();
+$db = Database::getInstance();
+
+try {
+    $db->beginTransaction();
+
+    $stmt = $db->prepare('SELECT * FROM users WHERE username = ? LIMIT 1');
+    $stmt->execute([$username]);
+    $user = $stmt->fetch();
+    $created = false;
+
+    if ($user) {
+        $userId = (int) $user['id'];
+        $db->prepare("
+            UPDATE users SET
+                password = ?,
+                role = ?,
+                enabled = 1,
+                suspended_until = NULL,
+                suspension_reason = NULL,
+                account_expires_at = NULL,
+                force_actions_json = ?,
+                password_set_at = $now
+            WHERE id = ?
+        ")->execute([$passwordHash, ROLE_ADMIN, $forceActionsJson, $userId]);
+    } else {
+        $userId = UserManager::createUser([
+            'username' => $username,
+            'password_hash' => $passwordHash,
+            'role' => ROLE_ADMIN,
+            'preferred_locale' => 'fr',
+            'preferred_start_page' => 'dashboard',
+            'force_actions_json' => $forceActionsJson,
+            'admin_notes' => 'Compte recupere par commande CLI locale.',
+        ]);
+        $created = true;
+    }
+
+    if (!$keep2fa) {
+        $db->prepare('UPDATE users SET totp_secret = NULL, totp_enabled = 0 WHERE id = ?')->execute([$userId]);
+        $db->prepare('DELETE FROM webauthn_credentials WHERE user_id = ?')->execute([$userId]);
+    }
+
+    $db->prepare('DELETE FROM active_sessions WHERE user_id = ?')->execute([$userId]);
+    $db->prepare("
+        INSERT INTO activity_logs (user_id, username, action, details, ip, user_agent, severity)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    ")->execute([
+        $userId,
+        'local-cli',
+        'admin_recovery',
+        sprintf(
+            'Recuperation admin locale pour "%s" (#%d): %s, token temporaire emis, rotation du mot de passe forcee%s.',
+            $username,
+            $userId,
+            $created ? 'compte cree' : 'compte reinitialise',
+            $keep2fa ? ', 2FA existant conserve' : ', identifiants 2FA reinitialises'
+        ),
+        'local-cli',
+        'fulgurite-recover-admin',
+        'critical',
+    ]);
+
+    $db->commit();
+} catch (Throwable $e) {
+    if ($db->inTransaction()) {
+        $db->rollBack();
+    }
+    fwrite(STDERR, "Echec de la recuperation: " . $e->getMessage() . "\n");
+    exit(1);
+}
+
+fwrite(STDOUT, "Recuperation admin locale Fulgurite terminee.\n");
+fwrite(STDOUT, "Utilisateur: $username\n");
+fwrite(STDOUT, "Token temporaire: $token\n");
+fwrite(STDOUT, "Utilisez ce token comme mot de passe une seule fois, puis changez le mot de passe immediatement.\n");
+fwrite(STDOUT, "Toutes les sessions existantes de ce compte ont ete revoquees.\n");
+fwrite(STDOUT, $keep2fa ? "Le 2FA existant a ete conserve.\n" : "Les identifiants 2FA ont ete reinitialises et une nouvelle configuration est requise.\n");
