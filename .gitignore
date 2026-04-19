@@ -19,6 +19,12 @@ _bmad_output/
 *.md
 generate_mockups.py
 docs/
+!docs/
+docs/*
+!docs/fr/
+!docs/fr/**
+!docs/en/
+!docs/en/**
 documentation/
 ia-docs/
 ia-doc/
