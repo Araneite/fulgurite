@@ -16,18 +16,8 @@ _bmad_output/
 
 # Documentation and repository metadata will be curated later
 .github/
-*.md
+
 generate_mockups.py
-docs/
-!docs/
-docs/*
-!docs/fr/
-!docs/fr/**
-!docs/en/
-!docs/en/**
-documentation/
-ia-docs/
-ia-doc/
 
 # Website lives in a separate repository
 website/
