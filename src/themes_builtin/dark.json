@@ -1,0 +1,23 @@
+{
+    "id": "dark",
+    "name": "Sombre",
+    "description": "Theme sombre par defaut, inspire de GitHub Dark.",
+    "author": "Fulgurite",
+    "version": "1.0",
+    "variables": {
+        "--bg": "#0d1117",
+        "--bg2": "#161b22",
+        "--bg3": "#21262d",
+        "--border": "#30363d",
+        "--text": "#e6edf3",
+        "--text2": "#8b949e",
+        "--accent": "#58a6ff",
+        "--accent2": "#1f6feb",
+        "--green": "#3fb950",
+        "--red": "#f85149",
+        "--yellow": "#d29922",
+        "--purple": "#bc8cff",
+        "--radius": "6px",
+        "--shadow": "0 8px 24px rgba(0,0,0,0.4)"
+    }
+}

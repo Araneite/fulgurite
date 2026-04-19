@@ -1,0 +1,105 @@
+{
+    "version": 1,
+    "updated_at": "2026-04-07",
+    "themes": [
+        {
+            "id": "ocean",
+            "name": "Ocean",
+            "description": "Palette bleu nuit inspiree de l ocean, thème variables-only.",
+            "author": "Fulgurite Store",
+            "version": "1.0",
+            "type": "variables",
+            "trusted": true,
+            "inline": {
+                "id": "ocean",
+                "name": "Ocean",
+                "description": "Palette bleu nuit inspiree de l ocean.",
+                "author": "Fulgurite Store",
+                "version": "1.0",
+                "type": "variables",
+                "variables": {
+                    "--bg": "#0a1628",
+                    "--bg2": "#0d1f3c",
+                    "--bg3": "#152849",
+                    "--border": "#1e3a5f",
+                    "--text": "#cdd9e5",
+                    "--text2": "#7d9ab5",
+                    "--accent": "#39c5cf",
+                    "--accent2": "#1a9aa4",
+                    "--green": "#26a641",
+                    "--red": "#f85149",
+                    "--yellow": "#e3b341",
+                    "--purple": "#bc8cff",
+                    "--radius": "6px",
+                    "--shadow": "0 8px 24px rgba(0,0,0,0.5)"
+                }
+            }
+        },
+        {
+            "id": "nord",
+            "name": "Nord",
+            "description": "Palette arctique inspiree de Nord Theme.",
+            "author": "Fulgurite Store",
+            "version": "1.0",
+            "type": "variables",
+            "trusted": true,
+            "inline": {
+                "id": "nord",
+                "name": "Nord",
+                "description": "Palette arctique inspiree de Nord Theme.",
+                "author": "Fulgurite Store",
+                "version": "1.0",
+                "type": "variables",
+                "variables": {
+                    "--bg": "#2e3440",
+                    "--bg2": "#3b4252",
+                    "--bg3": "#434c5e",
+                    "--border": "#4c566a",
+                    "--text": "#eceff4",
+                    "--text2": "#d8dee9",
+                    "--accent": "#88c0d0",
+                    "--accent2": "#5e81ac",
+                    "--green": "#a3be8c",
+                    "--red": "#bf616a",
+                    "--yellow": "#ebcb8b",
+                    "--purple": "#b48ead",
+                    "--radius": "6px",
+                    "--shadow": "0 8px 24px rgba(0,0,0,0.4)"
+                }
+            }
+        },
+        {
+            "id": "solarized-light",
+            "name": "Solarized Light",
+            "description": "Palette solarisee claire, douce pour les longues sessions.",
+            "author": "Fulgurite Store",
+            "version": "1.0",
+            "type": "variables",
+            "trusted": true,
+            "inline": {
+                "id": "solarized-light",
+                "name": "Solarized Light",
+                "description": "Palette solarisee claire.",
+                "author": "Fulgurite Store",
+                "version": "1.0",
+                "type": "variables",
+                "variables": {
+                    "--bg": "#fdf6e3",
+                    "--bg2": "#eee8d5",
+                    "--bg3": "#e4dec6",
+                    "--border": "#d3cdb4",
+                    "--text": "#073642",
+                    "--text2": "#586e75",
+                    "--accent": "#268bd2",
+                    "--accent2": "#2075b8",
+                    "--green": "#859900",
+                    "--red": "#dc322f",
+                    "--yellow": "#b58900",
+                    "--purple": "#6c71c4",
+                    "--radius": "6px",
+                    "--shadow": "0 8px 24px rgba(88,110,117,0.2)"
+                }
+            }
+        }
+    ]
+}

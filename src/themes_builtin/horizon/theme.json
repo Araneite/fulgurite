@@ -1,0 +1,24 @@
+{
+    "id": "horizon",
+    "name": "Horizon",
+    "description": "Demo d'un theme advanced : navbar horizontale en haut au lieu d'une sidebar verticale.",
+    "author": "Fulgurite",
+    "version": "1.0",
+    "type": "advanced",
+    "variables": {
+        "--bg": "#0b1020",
+        "--bg2": "#121a33",
+        "--bg3": "#1b2547",
+        "--border": "#283563",
+        "--text": "#e8eefc",
+        "--text2": "#8b97c2",
+        "--accent": "#7aa2ff",
+        "--accent2": "#3d6bff",
+        "--green": "#4ade80",
+        "--red": "#f87171",
+        "--yellow": "#fbbf24",
+        "--purple": "#c084fc",
+        "--radius": "8px",
+        "--shadow": "0 10px 30px rgba(0,0,0,0.5)"
+    }
+}

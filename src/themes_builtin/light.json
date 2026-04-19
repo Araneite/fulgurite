@@ -1,0 +1,23 @@
+{
+    "id": "light",
+    "name": "Clair",
+    "description": "Theme clair inspire de GitHub Light.",
+    "author": "Fulgurite",
+    "version": "1.0",
+    "variables": {
+        "--bg": "#ffffff",
+        "--bg2": "#f6f8fa",
+        "--bg3": "#eaeef2",
+        "--border": "#d0d7de",
+        "--text": "#1f2328",
+        "--text2": "#656d76",
+        "--accent": "#0969da",
+        "--accent2": "#0550ae",
+        "--green": "#1a7f37",
+        "--red": "#cf222e",
+        "--yellow": "#9a6700",
+        "--purple": "#8250df",
+        "--radius": "6px",
+        "--shadow": "0 8px 24px rgba(140,149,159,0.2)"
+    }
+}

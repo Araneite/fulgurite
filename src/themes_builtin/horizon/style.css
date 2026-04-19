@@ -1,0 +1,145 @@
+/* ========================================================================
+   Theme Horizon — navbar horizontale en haut, contenu pleine largeur.
+
+   Ce fichier demontre ce qu'un theme advanced peut faire : on reorganise
+   visuellement le layout sans toucher au coeur, juste avec du CSS et une
+   surcharge du slot sidebar.
+
+   Toutes les regles sont portees par [data-theme="horizon"] pour qu'elles
+   ne s'appliquent que quand l'utilisateur a selectionne ce theme.
+   ======================================================================== */
+
+[data-theme="horizon"] .app {
+    display: block;
+    min-height: 100vh;
+}
+
+[data-theme="horizon"] .sidebar {
+    position: sticky;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: auto;
+    min-height: 60px;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, var(--bg2) 0%, var(--bg) 100%);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 8px 20px;
+    gap: 20px;
+    z-index: 50;
+}
+
+[data-theme="horizon"] .sidebar-logo {
+    flex: 0 0 auto;
+    padding: 0;
+    border: none;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+[data-theme="horizon"] .sidebar-close { display: none; }
+
+[data-theme="horizon"] .nav {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 4px;
+    padding: 0;
+    overflow-x: auto;
+    overflow-y: visible;
+}
+
+[data-theme="horizon"] .nav-section {
+    display: none; /* masque les entetes de section en mode horizontal */
+}
+
+[data-theme="horizon"] .nav-item,
+[data-theme="horizon"] .nav-group-toggle {
+    flex: 0 0 auto;
+    padding: 8px 14px;
+    border-radius: var(--radius);
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+[data-theme="horizon"] .nav-item.active,
+[data-theme="horizon"] .nav-group.is-active > .nav-group-toggle {
+    background: var(--accent2);
+    color: #fff;
+}
+
+[data-theme="horizon"] .nav-group {
+    position: relative;
+    flex: 0 0 auto;
+}
+
+[data-theme="horizon"] .nav-group-toggle {
+    min-width: 0;
+}
+
+[data-theme="horizon"] .nav-group-items {
+    display: none;
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    min-width: 220px;
+    margin: 0;
+    padding: 8px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: linear-gradient(180deg, var(--bg2) 0%, var(--bg) 100%);
+    box-shadow: var(--shadow);
+    z-index: 80;
+}
+
+[data-theme="horizon"] .nav-group[open] .nav-group-items {
+    display: grid;
+}
+
+[data-theme="horizon"] .nav-group-items .nav-item {
+    width: 100%;
+    white-space: normal;
+}
+
+[data-theme="horizon"] .sidebar-footer {
+    flex: 0 0 auto;
+    padding: 0;
+    border: none;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+[data-theme="horizon"] .user-badge { padding: 4px 8px; }
+
+[data-theme="horizon"] .btn-logout {
+    padding: 6px 12px;
+    font-size: 12px;
+    margin: 0 !important;
+}
+
+[data-theme="horizon"] .main {
+    margin-left: 0;
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+[data-theme="horizon"] .topbar {
+    background: transparent;
+    border-bottom: 1px solid var(--border);
+}
+
+[data-theme="horizon"] .sidebar-toggle { display: none; }
+
+[data-theme="horizon"] .card {
+    box-shadow: var(--shadow);
+}
