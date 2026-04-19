@@ -1,0 +1,44 @@
+hetzner
+hetzner.pub
+
+# Local environment and generated configuration
+.env
+.env.*
+!.env.example
+config/database.php
+
+# Local agent and planning workspaces
+.claude/
+.git.backup-before-clean-repo-*/
+_bmad/
+_bmad-output/
+_bmad_output/
+
+# Documentation and repository metadata will be curated later
+.github/
+*.md
+generate_mockups.py
+docs/
+documentation/
+ia-docs/
+ia-doc/
+
+# Website lives in a separate repository
+website/
+
+# Docker and deployment files will be added later
+.dockerignore
+Dockerfile
+docker-compose.yml
+docker/
+deploy.sh
+deploy.ps1
+
+# Local runtime data
+*.db
+*.db-*
+ssh_keys
+passwords
+data/*
+!data/
+!data/.gitkeep
