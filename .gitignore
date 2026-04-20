@@ -1,18 +1,11 @@
-hetzner
-hetzner.pub
-
 # Local environment and generated configuration
 .env
 .env.*
 !.env.example
 config/database.php
 
-# Local agent and planning workspaces
-.claude/
+# Planning workspaces
 .git.backup-before-clean-repo-*/
-_bmad/
-_bmad-output/
-_bmad_output/
 
 # Documentation and repository metadata will be curated later
 .github/
