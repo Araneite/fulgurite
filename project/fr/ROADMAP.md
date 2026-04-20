@@ -14,6 +14,14 @@ Introduire une séparation par workspace pour qu’une même instance Fulgurite 
 
 Ajouter une vue calendrier pour l’activité planifiée. Elle doit montrer les exécutions passées, les prochains runs prévus et des indicateurs utiles pour les sauvegardes, copies, tâches globales et opérations de maintenance.
 
+## Score De Santé Des Sauvegardes
+
+Ajouter un indicateur global visible dès le dashboard. Il doit combiner le taux de réussite, l'ancienneté des snapshots, l'intégrité vérifiée et la présence d'une politique de rétention configurée dans un score simple, lisible par un décideur non technique.
+
+## Tests De Restauration Automatisés
+
+Permettre de planifier des vérifications périodiques de restauration. Fulgurite doit restaurer un sous-ensemble de fichiers, vérifier les checksums et indiquer si les données sont réellement récupérables, pas seulement si les sauvegardes s'exécutent.
+
 ## Gestion Avancée Des Logs
 
 Améliorer le stockage, la recherche, le filtrage et la consultation des logs. L’objectif est de faciliter le diagnostic sans obliger les utilisateurs à lire de la sortie brute partout.

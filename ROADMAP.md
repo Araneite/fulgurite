@@ -14,6 +14,14 @@ Introduce workspace separation so one Fulgurite instance can manage several oper
 
 Add a calendar view for scheduled activity. It should show past executions, upcoming planned runs and useful status markers for backups, copies, global tasks and maintenance operations.
 
+## Backup Health Score
+
+Add a global health indicator visible from the dashboard. It should combine success rate, snapshot age, verified integrity and retention policy coverage into one readable score that non-technical decision makers can understand quickly.
+
+## Automated Restore Tests
+
+Allow periodic restore checks to be scheduled. Fulgurite should restore a selected subset of files, verify checksums and report whether the data can actually be recovered, not only whether backup jobs are running.
+
 ## Advanced Log Management
 
 Improve how logs are stored, searched, filtered and reviewed. The goal is to make troubleshooting easier without forcing users to inspect raw output everywhere.
