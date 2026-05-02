@@ -123,4 +123,8 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    "log_level"=> env('APP_LOG_LEVEL', "warning"),
+    "logs_directory"=> env('APP_LOG_DIRECTORY', storage_path('logs')),
+    "logs_archived_after"=> (int) env('APP_LOG_ARCHIVED_AFTER', 3) //in months,
+
 ];
