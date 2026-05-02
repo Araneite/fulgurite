@@ -2,7 +2,15 @@
 
 namespace App\Providers;
 
+use App\Events\ActionLogged;
+use App\Listeners\HandleActionLogged;
+use App\Listeners\UpdateLastLogin;
+use Illuminate\Auth\Events\Login;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
+use App\Models\PersonalAccessToken;
+use Laravel\Sanctum\Sanctum;
 
 class AppServiceProvider extends ServiceProvider
 {

@@ -1,5 +1,4 @@
 {
-    "$schema": "https://getcomposer.org/schema.json",
     "name": "laravel/laravel",
     "type": "project",
     "description": "The skeleton application for the Laravel framework.",
@@ -8,7 +7,9 @@
     "require": {
         "php": "^8.3",
         "laravel/framework": "^13.0",
-        "laravel/tinker": "^3.0"
+        "laravel/sanctum": "^4.3",
+        "laravel/tinker": "^3.0",
+        "ext-zlib": "*"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
