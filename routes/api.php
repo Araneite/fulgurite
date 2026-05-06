@@ -4,6 +4,8 @@ use App\Http\Middleware\IsUserAccountActive;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\Internal\UserController as InternalUserController;
 use App\Http\Controllers\API\Internal\ActionLogController as InternalActionLogController;
+use App\Http\Controllers\API\Internal\Billing\CustomerController as InternalCustomerController;
+use App\Http\Controllers\API\Internal\Billing\CustomerContactController as InternalCustomerContactController;
 
 Route::prefix('internal')->group(function () {
     // Routes users actions
@@ -30,6 +32,18 @@ Route::prefix('internal')->group(function () {
         Route::get("/logs", [InternalActionLogController::class, 'index'])->name('logs.list');
         Route::get("/logs/{log}", [InternalActionLogController::class, 'show'])->name('logs.view');
         Route::post("/logs/archive", [InternalActionLogController::class, 'archive'])->name('logs.archive');
+        
+        // --- Customers & Billing ---
+        Route::get("/customers", [InternalCustomerController::class, "index"])->name('customers.list');
+        Route::get("/customers/{customer}", [InternalCustomerController::class, 'show'])->name('customers.view');
+        Route::post("/customers", [InternalCustomerController::class, "store"])->name('customers.create');
+        Route::patch("/customers/{customer}", [InternalCustomerController::class, 'update'])->name('customers.update');
+        Route::delete("/customers/{customer}", [InternalCustomerController::class, 'destroy'])->name('customers.destroy');
+        Route::post("/customers/{customer}/restore", [InternalCustomerController::class, 'restore'])->name('customers.restore');
+        Route::delete("/customers/{customer}/force", [InternalCustomerController::class, 'forceDeleteCustomer'])->name('customers.forceDelete');
+        
+        Route::post("/customers/{customer}/contacts", [InternalCustomerContactController::class, "store"])->name('customers.contacts.create');
+        Route::delete("/customers/contacts/{contact}", [InternalCustomerContactController::class, 'destroy'])->name('customers.contacts.destroy');
         
         //  === Personal ===
         Route::get("/me", [InternalUserController::class, 'getAuthenticatedUser'])->name('users.me.view');
