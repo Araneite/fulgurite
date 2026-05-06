@@ -34,8 +34,8 @@ class UserPasswordChangeRequest extends FormRequest
     public function failedValidation(Validator $validator)
     {
         throw new ValidationDataException(
-            trans("internal.errors.users.reused_password.message"), [
-                "description"=> trans("internal.errors.users.reused_password.description"),
+            trans("internal/errors.reused_password.message"), [
+                "reused_password"=> trans("internal/errors.reused_password.detail"),
                 "errors"=>$validator->errors(),
             ]
         );

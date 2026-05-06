@@ -31,7 +31,7 @@ class ForgotPasswordMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: trans("emails.forgot_password.subject"),
+            subject: trans("internal/mails/forgot_password.subject"),
         );
     }
 

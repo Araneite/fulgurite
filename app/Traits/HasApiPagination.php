@@ -25,9 +25,9 @@ trait HasApiPagination
         
         if ($paginator->total() > 0 && $page > $paginator->lastPage()) {
             throw new PaginationException(
-                trans("internal.errors.pagination.404.message"),
+                trans("internal/errors.page_not_found.message"),
                 [
-                    "page"=> trans('internal.errors.pagination.404.description', [
+                    "page"=> trans('internal/errors.page_not_found.detail', [
                         "page"=> $page,
                         "last_page"=> $paginator->lastPage()
                     ]),
@@ -65,9 +65,9 @@ trait HasApiPagination
 
         if ($paginator->total() > 0 && $page > $paginator->lastPage()) {
             throw new PaginationException(
-                trans('internal.errors.pagination.404.message'),
+                trans('internal/errors.page_not_found.message'),
                 [
-                    'page' => trans('internal.errors.pagination.404.description', [
+                    'page' => trans('internal/errors.page_not_found.detail', [
                         'page' => $page,
                         'last_page' => $paginator->lastPage(),
                     ]),

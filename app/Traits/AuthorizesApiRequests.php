@@ -22,14 +22,14 @@ trait AuthorizesApiRequests
         if (!$user) {
             $this->logger()->failed(
                 action: "api.authentication.require",
-                description: trans("logs.api.authentication.required"),
+                description: trans("logs/api.authentication.required"),
                 metadata: [
                     "route"=> request()->path()
                 ]
             );
-            throw new AuthenticationException(trans('internal.errors.unauthenticated.message'), 
+            throw new AuthenticationException(trans('internal/errors.unauthenticated.message'), 
                 [
-                    "authentication"=> trans('internal.errors.unauthenticated.description')
+                    "authentication"=> trans('internal/errors.unauthenticated.detail')
                 ]
             );
         }
@@ -51,9 +51,9 @@ trait AuthorizesApiRequests
                 action: "api.check_permission",
                 description: trans("logs.api.permissions.failed")
             );
-            throw new AuthorizationException(trans('internal.errors.unauthorized.message'),
+            throw new AuthorizationException(trans('internal/errors.unauthorized.message'),
              [
-                 "authorization"=> trans('internal.errors.unauthorized.description',[
+                 "authorization"=> trans('internal/errors.unauthorized.detail',[
                      "end_sentence"=> trans($actionTranslationKey),
                  ])
              ]);

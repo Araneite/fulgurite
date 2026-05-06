@@ -48,8 +48,8 @@ class UserUpdateRequest extends FormRequest
     public function failedValidation(Validator $validator)
     {
         throw new ValidationDataException(
-            trans("internal.errors.validation.message"), [
-                "description"=> trans("internal.errors.validation.description"),
+            trans("internal/errors.validation.message"), [
+                "validation_failed"=> trans("internal/errors.validation.description"),
                 "errors"=>$validator->errors(),
             ]
         );

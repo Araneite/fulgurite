@@ -48,7 +48,7 @@ class ActionLogController extends Controller
         return (new ActionLogCollection($logs))
             ->success()
             ->setCode(200)
-            ->setMessage(trans('internal.success.users.index.message'));
+            ->setMessage(trans('internal/success.index.message'));
     }
     
     /**
@@ -76,9 +76,12 @@ class ActionLogController extends Controller
         return (new ActionLogResource($model))
             ->success()
             ->setCode(200)
-            ->setMessage(trans('internal.success.logs.show.message'))
+            ->setMessage(trans('internal/success.show.message'))
             ->setDetails([
-                "description"=> trans('internal.success.logs.show.description', ["id"=> $id]),
+                "show"=> trans('internal/success.show.detail', [
+                    "model"=> trans('internal/models.singular.action_log'),
+                    "requested"=> $id
+                ]),
             ]);
     }
     

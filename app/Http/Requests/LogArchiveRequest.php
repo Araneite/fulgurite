@@ -32,8 +32,10 @@ class LogArchiveRequest extends FormRequest
     public function failedValidation(Validator $validator)
     {
         throw new ValidationDataException(
-            trans('internal.errors.logs.invalid_date.message', [collect()->only("date")]), [
-                "description" => trans('internal.errors.logs.invalid_date.description'),
+            trans('internal/errors.invalid_date.message'), [
+                "invalid_date" => trans('internal/errors.invalid_date.detail', [
+                    "date"=> collect()->only("date")
+                ]),
                 "errors" => $validator->errors()
             ]            
         );

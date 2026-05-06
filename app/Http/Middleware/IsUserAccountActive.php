@@ -21,9 +21,9 @@ class IsUserAccountActive
         $user = auth()->user();
 
         if (!$user->active || $user->suspended_until >= now()) {
-            $errors = ["account_disabled" => trans('internal.errors.users.account_disabled.description')];
+            $errors = ["account_disabled" => trans('internal/errors.disabled.detail')];
             if ($user->suspension_reason) $errors["reason"] = $user->suspension_reason;
-            throw new DisabledAccountException(trans('internal.errors.users.account_disabled.message'), $errors);
+            throw new DisabledAccountException(trans('internal/errors.disabled.message'), $errors);
         }
 
         return $next($request);

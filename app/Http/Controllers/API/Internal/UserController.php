@@ -64,7 +64,9 @@ class UserController extends Controller
         return (new UserCollection($users))
             ->success()
             ->setCode(200)
-            ->setMessage(trans('internal.success.users.index.message'));
+            ->setMessage(trans('internal/success.index.detail', [
+                "model"=> trans('internal/models.plural.user')
+            ]));
     }
     
     /**
@@ -147,11 +149,11 @@ class UserController extends Controller
         return (new UserResource($model))
             ->success()
             ->setCode(200)
-            ->setMessage(trans("internal.success.users.store.message"))
+            ->setMessage(trans("internal/success.store.message"))
             ->setDetails([
                 "token"=> $token,
-                "description"=> trans("internal.success.users.store.description", [
-                    "user"=> $user->username,
+                "create"=> trans("internal/success.store.details", [
+                    "model"=> trans("internal/models.singular.user"),
                 ]),
             ]);
     }
@@ -202,8 +204,9 @@ class UserController extends Controller
             ->setCode(200)
             ->setMessage(trans("internal.success.users.show.message"))
             ->setDetails([
-                "description"=> trans("internal.success.users.show.description",[
-                    "user"=> $userReq,
+                "show"=> trans("internal/success.show.detail",[
+                    "model"=> trans("internal/models.singular.user"),
+                    "requested"=> $userReq,
                 ]),
             ]);
     }
@@ -259,9 +262,12 @@ class UserController extends Controller
         return (new UserResource($model))
             ->success()
             ->setCode(200)
-            ->setMessage(trans("internal.success.users.update.message"))
+            ->setMessage(trans("internal/success.update.message"))
             ->setDetails([
-                "description"=> trans("internal.success.users.update.description"),
+                "update"=> trans("internal/success.update.detail", [
+                    "model"=> trans("internal/models.singular.user"),
+                    "requested"=> $userReq,
+                ]),
             ]);
     }
     
@@ -311,9 +317,12 @@ class UserController extends Controller
         return (new UserResource($model))
             ->success()
             ->setCode(200)
-            ->setMessage(trans("internal.success.users.destroy.message"))
+            ->setMessage(trans("internal:success.destroy.message"))
             ->setDetails([
-                "description"=> trans("internal.success.users.destroy.description", ["user"=>$userReq]),
+                "delete"=> trans("internal/success.destroy.detail", [
+                    "model"=> trans("internal/models.singular.user"),
+                    "requested"=> $userReq
+                ]),
             ]);
     }
     
@@ -373,9 +382,12 @@ class UserController extends Controller
         return (new UserResource($model))
             ->success()
             ->setCode(200)
-            ->setMessage(trans("internal.success.users.restore.message"))
+            ->setMessage(trans("internal/success.restore.message"))
             ->setDetails([
-                "description"=> trans("internal.success.users.restore.description", ["user"=>$userReq]),
+                "restore"=> trans("internal/success.restore.detail", [
+                    "model"=> trans("internal/models.singular.user"),
+                    "requested"=>$userReq
+                ]),
             ]);
     }
     
@@ -420,11 +432,12 @@ class UserController extends Controller
         return (new UserResource($model))
             ->success()
             ->setCode(200)
-            ->setMessage(trans("internal.success.users.change.status.message"))
+            ->setMessage(trans("internal/success.change.message"))
             ->setDetails([
-                "description"=> trans("internal.success.users.change.status.description", [
-                    "user"=>$userReq,
-                    "status"=> $model->active ? trans("internal.actions.users.status.active") : trans("internal.actions.users.status.inactive")
+                "change"=> trans("internal/success.change.detail", [
+                    "fields"=> join(", ", $model->getChanges()),
+                    "model"=> trans("internal/models.singular.user"),
+                    "requested"=>$userReq
                 ]),
             ]);
         
@@ -489,9 +502,12 @@ class UserController extends Controller
         return (new UserResource($model))
             ->success()
             ->setCode(200)
-            ->setMessage(trans("internal.success.users.force_delete.message"))
+            ->setMessage(trans("internal/success.force_delete.message"))
             ->setDetails([
-                "description"=> trans("internal.success.users.force_delete.description", ["user"=>$userReq]),
+                "force_delete"=> trans("internal/success.force_delete.detail", [
+                    "model"=> trans("internal/models.singular.user"),
+                    "requested"=> $userReq
+                ]),
             ]);
     }
     
@@ -534,10 +550,12 @@ class UserController extends Controller
             return (new UserResource($user))
                 ->success()
                 ->setCode(200)
-                ->setMessage(trans('internal.success.login.message'))
+                ->setMessage(trans('internal/success.login.message'))
                 ->setDetails([
                     "token"=> $token,
-                    "description"=> trans('internal.success.login.description'),
+                    "login_success"=> trans('internal/success.login.detail', [
+                        "user"=> $user->username
+                    ]),
                 ]);
         }
         
@@ -572,8 +590,8 @@ class UserController extends Controller
         
         return (new BaseResource([]))
             ->setCode(200)
-            ->setMessage(trans('internal.success.logout.message'))
-            ->setDetails(["logout"=>trans('internal.success.logout.description', ["user"=> $user->username])]);
+            ->setMessage(trans('internal/success.logout.message'))
+            ->setDetails(["logout"=>trans('internal/success.logout.detail', ["user"=> $user->username])]);
     }
     
     /**
@@ -608,9 +626,11 @@ class UserController extends Controller
         return (new UserResource($model))
             ->success()
             ->setCode(200)
-            ->setMessage(trans("internal.success.users.reset_password.message"))
+            ->setMessage(trans("internal/success.reset_password.message"))
             ->setDetails([
-                "description"=> trans("internal.success.users.reset_password.description"),
+                "reset_password"=> trans("internal/success.reset_password.detail", [
+                    "user" => $model->username
+                ]),
             ]);
     }
     
@@ -629,12 +649,11 @@ class UserController extends Controller
         );
         
         if (!$user) {
-            return BaseResource::error()
-                ->success()
+            return BaseResource::success()
                 ->setCode(200)
-                ->setMessage(trans("internal.info.forgot_password.message"))
+                ->setMessage(trans("internal/infos.forgot_password.message"))
                 ->setDetails([
-                    "description"=> trans("internal.info.forgot_password.description", ["email"=>$email]),
+                    "forgot_password"=> trans("internal/info.forgot_password.detail", ["email"=>$email]),
                 ]);
         }
         
@@ -656,12 +675,11 @@ class UserController extends Controller
             )
         );
         
-        return BaseResource::error()
-            ->success()
+        return BaseResource::success()
             ->setCode(200)
-            ->setMessage(trans("internal.info.forgot_password.message"))
+            ->setMessage(trans("internal/infos.forgot_password.message"))
             ->setDetails([
-                "description"=> trans("internal.info.forgot_password.description", ["email"=>$email]),
+                "forgot_password"=> trans("internal/infos.forgot_password.detail", ["email"=>$email]),
             ]);
     }
     
@@ -714,9 +732,11 @@ class UserController extends Controller
         return (new BaseResource([]))
             ->success()
             ->setCode(200)
-            ->setMessage(trans('internal.success.users.reset_password.message'))
+            ->setMessage(trans('internal/success.reset_password.message'))
             ->setDetails([
-                'description' => trans('internal.success.users.reset_password.description'),
+                'reset_password' => trans('internal/success.reset_password.detail', [
+                    "user" => $user->username
+                ]),
             ]);
     }
     
@@ -746,10 +766,11 @@ class UserController extends Controller
         return (new UserResource($user))
             ->success()
             ->setCode(200)
-            ->setMessage(trans('internal.success.users.get_profile.message'))
+            ->setMessage(trans('internal/success.show.message'))
             ->setDetails([
-                "description"=> trans("internal.success.users.get_profile.description", [
-                    "user"=> $user->username,
+                "show"=> trans("internal/success.show.detail", [
+                    "model"=> trans("internal/models.singular.user"),
+                    "requested"=> $user->username,
                 ]),
             ]);
     }
@@ -783,9 +804,12 @@ class UserController extends Controller
         return (new UserResource($user))
             ->success()
             ->setCode(200)
-            ->setMessage(trans('internal.success.users.update_profile.message'))
+            ->setMessage(trans('internal/success.update.message'))
             ->setDetails([
-                "description"=> trans("internal.success.users.update_profile.description", ['user'=>$user->username]),
+                "update"=> trans("internal/success.update.detail", [
+                    "model"=> trans("internal/models.singular.user"),
+                    'requested'=>$user->username
+                ]),
             ]);
     }
     
@@ -818,9 +842,12 @@ class UserController extends Controller
         return (new UserResource($user))
             ->success()
             ->setCode(200)
-            ->setMessage(trans('internal.success.users.destroy_profile.message'))
+            ->setMessage(trans('internal/success.destroy.message'))
             ->setDetails([
-                "description"=> trans("internal.success.users.destroy_profile.description"),
+                "delete"=> trans("internal/success.destroy.message", [
+                    "model"=> trans("internal/models.singular.user"),
+                    "requested"=> $user->username,
+                ]),
             ]);
     }
     

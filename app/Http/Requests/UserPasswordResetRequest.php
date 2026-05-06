@@ -36,9 +36,9 @@ class UserPasswordResetRequest extends FormRequest
     public function failedValidation(Validator $validator)
     {
         throw new ValidationDataException(
-            trans('internal.errors.validation.message'),
+            trans('internal/errors.validation.message'),
             [
-                "description"=> trans('internal.errors.validation.description'),
+                "validation_failed"=> trans('internal/errors.validation.detail'),
                 "errors"=>$validator->errors(),
             ]
         );
@@ -60,7 +60,7 @@ class UserPasswordResetRequest extends FormRequest
             
             if (Hash::check($this->input("password"), $user->password)) {
                 $validator->errors()->add(
-                    "password", trans('internal.errors.users.reused_password.message'
+                    "password_reused", trans('internal/errors.reused_password.message'
                 ));
             }
         });

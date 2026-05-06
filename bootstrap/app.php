@@ -34,9 +34,9 @@ return Application::configure(basePath: dirname(__DIR__))
                 'data' => [],
                 'success' => false,
                 'code' => 403,
-                'message' => trans('internal.errors.unauthenticated.message'),
+                'message' => trans('internal/errors.unauthenticated.message'),
                 'errors' => [
-                    'authorization' => trans('internal.errors.unauthenticated.description'),
+                    'authorization' => trans('internal/errors.unauthenticated.description'),
                 ],
             ], 403);
         });
