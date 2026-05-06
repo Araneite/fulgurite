@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             ProjectDemoSeeder::class,
             AuditIdentityLinkSeeder::class
+            AuditIdentityLinkSeeder::class,
         ]);
     }
 }

@@ -32,7 +32,7 @@ return new class extends Migration
             $table->timestamp("password_set_at");
 
             // Relations columns
-            $table->bigInteger("last_login")->nullable();
+            $table->timestamp("last_login")->nullable();
             $table->unsignedBigInteger("contact_id")->nullable();
             $table->unsignedBigInteger("user_settings_id")->nullable();
             $table->unsignedBigInteger("created_by")->nullable();

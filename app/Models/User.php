@@ -60,7 +60,7 @@ class User extends Authenticatable
             'expire_at' => 'datetime',
             'active' => 'boolean',
             'password_set_at' => 'datetime',
-            'last_login' => 'integer',
+            'last_login' => 'datetime',
             'role_id' => 'integer',
             'contact_id' => 'integer',
             'user_settings_id' => 'integer',

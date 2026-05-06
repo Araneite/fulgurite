@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (!Schema::hasColumn('fg_user_settings', 'preferred_local')) {
+        if (!Schema::hasColumn('fg_user_settings', 'preferred_locale')) {
             Schema::table('fg_user_settings', function (Blueprint $table) {
-                $table->string('preferred_local')->default("fr_FR")->nullable()->change();
+                $table->string('preferred_locale')->default("fr_FR")->nullable()->change();
             });
         }
     }
