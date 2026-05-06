@@ -16,10 +16,6 @@ class UserResource extends BaseResource
             "id"=> $this->id,
             "username"=> $this->username,
             "email"=> $this->email,
-            /*"contact"=> array(
-                "email"=> $this->email,
-                "phone"=> ["extension"=> $this->ext, "number"=> $this->phone],
-            ),*/
             "role"=> $this->whenLoaded('role', function () {
                 return [
                     "id" => $this->role->id,

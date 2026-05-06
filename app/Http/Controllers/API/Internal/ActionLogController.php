@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API\Internal;
 
 use App\Exceptions\AuthenticationException;
 use App\Exceptions\AuthorizationException;
+use App\Exceptions\ModelNotFoundException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LogArchiveRequest;
 use App\Http\Resources\API\Internal\ActionLogCollection;
@@ -68,9 +69,16 @@ class ActionLogController extends Controller
         $model = $query->find($id);
         
         if (!$model) {
-            return BaseResource::error()
-                ->setCode(404)
-                ->setMessage(trans('internal.errors.logs.404.message'));
+            throw new ModelNotFoundException(
+                trans('internal/errors.404.message'), 
+                [
+                    "not_found"=> trans('internal/errors.404.detail', 
+                    [
+                        "model"=> trans('internal/models.singular.action_log'),
+                        "requested"=> $id
+                    ]),
+                ]
+            );
         }
         
         return (new ActionLogResource($model))

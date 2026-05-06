@@ -4,6 +4,10 @@ namespace App\Http\Controllers\API\Internal;
 
 use App\Exceptions\AuthenticationException;
 use App\Exceptions\AuthorizationException;
+use App\Exceptions\ModelNotFoundException;
+use App\Exceptions\ModelNotTrashedException;
+use App\Exceptions\RequestNotConfirmedException;
+use App\Exceptions\UserResetPasswordException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UserForgotPasswordRequest;
 use App\Http\Requests\UserPasswordChangeRequest;
@@ -179,15 +183,15 @@ class UserController extends Controller
             : $query->where('username', $userReq)->first();
         
         if (!$model) {
-            return BaseResource::error()
-                ->setCode(404)
-                ->setMessage(trans("internal.errors.users.404.message"))
-                ->setDetails([
-                    "description"=> trans("internal.errors.users.404.description", ["user"=>$userReq]),
-                ])
-                ->setErrors([
-                    "404"=> "Resource not found",
-                ]);
+            throw new ModelNotFoundException(
+                trans("internal/errors.404.message"),
+                [
+                    "not_found"=> trans("internal/errors.404.detail", [
+                        "model"=> trans("internal/models.user"),
+                        "requested"=> $userReq,
+                    ])
+                ]
+            );
         }
         
         $logger->info(
@@ -202,7 +206,7 @@ class UserController extends Controller
         return (new UserResource($model))
             ->success()
             ->setCode(200)
-            ->setMessage(trans("internal.success.users.show.message"))
+            ->setMessage(trans("internal/success.show.message"))
             ->setDetails([
                 "show"=> trans("internal/success.show.detail",[
                     "model"=> trans("internal/models.singular.user"),
@@ -226,12 +230,15 @@ class UserController extends Controller
         $model = $request->getTargetUser();
         
         if (!$model) {
-            return BaseResource::error()
-                ->setCode(404)
-                ->setMessage(trans("internal.errors.users.404.message"))
-                ->setDetails([
-                    "description"=> trans("internal.errors.users.404.description", ["user"=>$userReq]),
-                ]);
+            throw new ModelNotFoundException(
+                trans("internal/errors.404.message"), 
+                [
+                    "not_found"=> trans("internal/errors.404.detail", [
+                        "model"=> trans("internal/models.singular.user"),
+                        "requested"=> $userReq,
+                    ])
+                ]
+            );
         }
         
         $userData = $request->userData();
@@ -290,12 +297,15 @@ class UserController extends Controller
             : $query->where('username', $userReq)->first();
         
         if (!$model) {
-            return BaseResource::error()
-                ->setCode(404)
-                ->setMessage(trans("internal.errors.users.404.message"))
-                ->setDetails([
-                    "description"=> trans("internal.errors.users.404.description"),
-                ]);
+            throw new ModelNotTrashedException(
+                trans("internal/errors.404.message"),
+                [
+                    "not_found"=> trans("internal/errors.404.detail", [
+                        "model"=> trans("internal/models.user"),
+                        "requested"=> $userReq,
+                    ])
+                ]
+            );
         }
         
         $model->contact->delete();
@@ -346,20 +356,26 @@ class UserController extends Controller
                 ->first();
         
         if (!$model->trashed()) {
-            return BaseResource::error()
-                ->setCode(400)
-                ->setMessage(trans("internal.errors.users.not_trashed.message"))
-                ->setDetails([
-                    "description"=> trans("internal.errors.users.not_trashed.description", ["user"=>$userReq]),
-                ]);
+            throw new ModelNotTrashedException(
+                trans("internal/errors.not_trashed.message"), 
+                [
+                    "not_found"=> trans("internal/errors.not_trashed.detail", [
+                        "model"=> trans("internal/models.singular.user"),
+                        "requested"=> $userReq
+                    ])
+                ]
+            );
         }
         if (!$model) {
-            return BaseResource::error()
-                ->setCode(404)
-                ->setMessage(trans("internal.errors.users.404.message"))
-                ->setDetails([
-                    "description"=> trans("internal.errors.users.404.description"),
-                ]);
+            throw new ModelNotFoundException(
+                trans("internal/errors.404.message"),
+                [
+                    "not_found"=> trans("internal/errors.404.detail", [
+                        "model"=> trans("internal/models.singular.user"),
+                        "requested"=> $userReq
+                    ])
+                ]
+            );
         }
         
         $roles = $model->roles->all();
@@ -408,12 +424,15 @@ class UserController extends Controller
             : $query->where('username', $userReq)->first();
         
         if (!$model) {
-            return BaseResource::error()
-                ->setCode(404)
-                ->setMessage(trans("internal.errors.users.404.message"))
-                ->setDetails([
-                    "description"=> trans("internal.errors.users.404.description", ["user"=>$userReq]),
-                ]);
+            throw new ModelNotFoundException(
+                trans("internal/errors.404.message"),
+                [
+                    "not_found"=> trans("internal/errors.404.detail", [
+                        "model"=> trans("internal/models.singular.user"),
+                        "requested"=> $userReq
+                    ])
+                ]
+            );
         }
         
         $model->update([
@@ -464,23 +483,26 @@ class UserController extends Controller
                 ->first();
         
         if (!$model) {
-            return BaseResource::error()
-                ->setCode(404)
-                ->setMessage(trans("internal.errors.users.404.message"))
-                ->setDetails([
-                    "description"=> trans("internal.errors.users.404.description"),
-                ]);
+            throw new ModelNotFoundException(
+                trans("internal/errors.404.message"),
+                [
+                    "not_found"=> trans("internal/errors.404.detail", [
+                        "model"=> trans("internal/models.singular.user"),
+                        "requested"=> $userReq
+                    ])
+                ]
+            );
         }
         
         $confirmation = (bool) $request->confirmation;
         
         if (!$confirmation) {
-            return BaseResource::error()
-                ->setCode(400)
-                ->setMessage(trans("internal.errors.users.confirmation.message"))
-                ->setDetails([
-                    "description"=> trans("internal.errors.users.confirmation.description", ["user"=>$userReq]),
-                ]);
+            throw new RequestNotConfirmedException(
+                trans("internal/errors.confirmation.message"),
+                [
+                    "confirmation_failed"=> trans("internal/errors.confirmation.detail")
+                ]
+            );
         }
         
         $roles = $model->roles->all();
@@ -567,7 +589,11 @@ class UserController extends Controller
             ]
         );
         
-        throw new AuthenticationException(trans('internal.errors.login.message'), ["authentication"=> trans('internal.errors.login.message')]);
+        throw new AuthenticationException(
+            trans('internal/errors.login.message'),
+            [
+                "authentication"=> trans('internal/errors.login.detail')
+            ]);
     }
     
     /**
@@ -576,7 +602,11 @@ class UserController extends Controller
     public function logout(Request $request, ActionLogger $logger) {
         $user = Auth::user();
             
-        if (!$user) throw new AuthenticationException(trans('internal.errors.unauthenticated.message'), ["authorization"=> trans('internal.errors.unauthenticated.details')]);
+        if (!$user) throw new AuthenticationException(
+            trans('internal/errors.unauthenticated.message'), 
+            [
+                "authorization"=> trans('internal/errors.unauthenticated.detail')
+            ]);
         
         $user->currentAccessToken()->delete();
         
@@ -709,16 +739,12 @@ class UserController extends Controller
                 ]
             );
             
-            return BaseResource::error()
-                ->setCode(400)
-                ->setMessage(trans("internal.errors.reset_password.message"))
-                ->setDetails([
-                    "description"=> trans("internal.errors.reset_password.description"),
-                    "status"=> $status,
-                ])
-                ->setErrors([
-                    "token"=> [trans($status)],
-                ]);
+            throw new UserResetPasswordException(
+                trans("internal/errors.reset_password.message"),
+                [
+                    "reset_password"=> trans("internal/errors.reset_password.description")
+                ]
+            );
         }
         
         $logger->warning(
