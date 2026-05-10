@@ -2,31 +2,30 @@
 
 namespace Plugins\SystemInfo\Http\Controllers;
 
-use App\Http\Controllers\Controller;
-use App\Http\Resources\API\Internal\BaseResource;
+use App\Models\User;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Routing\Controller;
 
 class SystemInfoController extends Controller
 {
-    public function status(): BaseResource
+    public function status(): JsonResponse
     {
-        return BaseResource::make([
+        return response()->json([
+            'success' => true,
             'plugin' => 'system-info',
-            'status' => 'enabled',
-            'app' => [
-                'name' => config('app.name'),
-                'env' => app()->environment(),
-                'debug' => (bool) config('app.debug'),
-                'timezone' => config('app.timezone'),
-                'locale' => app()->getLocale(),
-            ],
-            'runtime' => [
-                'php' => PHP_VERSION,
-                'laravel' => app()->version(),
-            ],
+            'status' => 'public',
             'checked_at' => now()->toIso8601String(),
-        ])
-            ->success()
-            ->setCode(200)
-            ->setMessage('Plugin System Info actif.');
+        ]);
+    }
+    
+    public function privateStatus(): JsonResponse
+    {
+        return response()->json([
+            'success' => true,
+            'plugin' => 'system-info',
+            'status' => 'private',
+            'user_id' => request()->header('X-Fulgurite-User-Id'),
+            'checked_at' => now()->toIso8601String(),
+        ]);
     }
 }

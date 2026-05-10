@@ -3,10 +3,12 @@
 use Illuminate\Support\Facades\Route;
 use Plugins\SystemInfo\Http\Controllers\SystemInfoController;
 
-Route::prefix('api/internal/plugins/system-info')
+Route::prefix('plugins/system-info')
     ->name('plugins.system-info.')
-    ->middleware(['api'])
     ->group(function () {
         Route::get('/status', [SystemInfoController::class, 'status'])
             ->name('status');
+        
+        Route::get('/private-status', [SystemInfoController::class, 'privateStatus'])
+            ->name('private-status');
     });
