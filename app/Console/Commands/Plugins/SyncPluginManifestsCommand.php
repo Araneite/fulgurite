@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Console\Commands;
+namespace App\Console\Commands\Plugins;
 
 use App\Models\Plugin;
 use App\Models\PluginRoute;
