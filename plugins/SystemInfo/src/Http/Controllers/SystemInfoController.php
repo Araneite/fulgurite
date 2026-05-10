@@ -2,9 +2,8 @@
 
 namespace Plugins\SystemInfo\Http\Controllers;
 
-use App\Models\User;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Routing\Controller;
+use App\Http\Controller;
 
 class SystemInfoController extends Controller
 {
