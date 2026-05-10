@@ -12,5 +12,10 @@ return [
         "public"=> [],
         "auth"=> ['auth:sanctum', IsUserAccountActive::class],
         "setUserLocale"=> [SetUserLocale::class],
+    ],
+    
+    "core_read_tables"=> [
+        "fg_plugins", "fg_plugin_routes", "fg_users", 
+        "fg_roles", "fg_customers"
     ]
 ];
