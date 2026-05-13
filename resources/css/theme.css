@@ -1,0 +1,133 @@
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+@custom-variant light (&:where([data-theme="light"], [data-theme="light"] *));
+
+@theme {
+    /* === Independent variable === */
+    
+    --color-sandstone : #ffe3b7;
+    --color-magicsand : #fff3e9;
+    --color-sand : #fffbef;
+    --color-sand-alt: #fffaf7;
+    
+    --color-darknight: #050e15;
+    --color-midnight: #0D1117;
+    --color-night: #161B22;
+    --color-moonlight: #1A2535;
+    
+    --color-primary-light: #f3ad40;
+    --color-primary: #eea400;
+    --color-primary-dark: #b08300;
+    
+    
+    
+    
+    /* === Variables from themes === */
+
+    --color-border-500: var(--theme-border-500);
+
+    --color-text-100: var(--theme-text-100);
+    --color-text-200: var(--theme-text-200);
+    --color-text-300: var(--theme-text-300);
+    --color-text-400: var(--theme-text-400);
+    --color-text-500: var(--theme-text-500);
+    --color-text-600: var(--theme-text-600);
+    --color-text-700: var(--theme-text-700);
+    --color-text-800: var(--theme-text-800);
+    --color-text-900: var(--theme-text-900);
+
+    --color-primary-100: var(--theme-primary-100);
+    --color-primary-200: var(--theme-primary-200);
+    --color-primary-300: var(--theme-primary-300);
+    --color-primary-400: var(--theme-primary-400);
+    --color-primary-500: var(--theme-primary-500);
+    --color-primary-600: var(--theme-primary-600);
+    --color-primary-700: var(--theme-primary-700);
+    --color-primary-800: var(--theme-primary-800);
+    --color-primary-900: var(--theme-primary-900);
+
+    --color-tertiary-500: var(--theme-tertiary-500);
+    --color-tertiary-700: var(--theme-tertiary-700);
+}
+
+@layer theme {
+    html[data-theme="dark"] {
+        /* === Colors Themes ===*/
+        /* --- Backgrounds --- */
+        --color-background-light: #616a91;
+        --color-background-neutrallight: #1f3644;
+        --color-background-neutral: #1b242c;
+        --color-background-neutraldark: #11181c;
+        --color-background-dark: #0d1117;
+
+        /* --- Borders --- */
+        --color-border-500: #30363d;
+
+        /* --- Texts --- */
+        --color-text-100: #ffffff;
+        --color-text-200: #fff7f3;
+        --color-text-300: #e8d6cc;
+        --color-text-400: #c4c4c4;
+        --color-text-500: #919191;
+        --color-text-600: #575757;
+        --color-text-700: #3a3433;
+        --color-text-800: #171717;
+        --color-text-900: #000000;
+
+        /* --- Primary --- */
+        --color-primary-100: #bb6a00;
+        --color-primary-200: #b2650b;
+        --color-primary-300: #bb8400;
+        --color-primary-800: #ffdd8f;
+        --color-primary-400: #d69500;
+        --color-primary-500: #eea400;
+        --color-primary-600: #fdb61e;
+        --color-primary-700: #ffc755;
+        --color-primary-900: #ffe8b5;
+
+        /* --- Secondary --- */
+
+        /* --- Tertiary --- */
+        --color-tertiary-500: #1f6feb;
+        --color-tertiary-700: #0a52c5
+    }
+
+    html[data-theme="light"] {
+        /* === Colors Themes ===*/
+        /* --- Backgrounds --- */
+        
+        --color-background-light: #ffffff;
+        --color-background-neutral: #f9f6f0;
+        --color-background-dark: #f5f0e8;
+
+        /* --- Borders --- */
+        --color-border-500: #fcdec3;
+
+        /* --- Texts --- */
+        --color-text-100: #000000;
+        --color-text-200: #171717;
+        --color-text-300: #3a3433;
+        --color-text-400: #575757;
+        --color-text-500: #919191;
+        --color-text-600: #c4c4c4;
+        --color-text-700: #e8d6cc;
+        --color-text-800: #fff7f3;
+        --color-text-900: #ffffff;
+
+        /* --- Primary --- */
+        --color-primary-100: #ffe8b5;
+        --color-primary-200: #ffdd8f;
+        --color-primary-300: #ffc755;
+        --color-primary-400: #fdb61e;
+        --color-primary-500: #eea400;
+        --color-primary-600: #d69500;
+        --color-primary-700: #bb8400;
+        --color-primary-800: #b2650b;
+        --color-primary-900: #bb6a00;
+
+        /* --- Secondary --- */
+
+        /* --- Tertiary --- */
+        --color-tertiary-500: #1f6feb;
+        --color-tertiary-700: #0a52c5
+    }    
+}

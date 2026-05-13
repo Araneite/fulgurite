@@ -1,0 +1,31 @@
+@layer components {
+    .btn {
+        @apply px-5 py-3 text-lg font-bold leading-tight cursor-pointer ease-in-out duration-300;
+        
+        &:focus {
+            @apply outline-primary-800 outline-solid outline-2;
+        }
+        
+        &.btn-primary {
+            @apply bg-primary-500 rounded-lg hover:bg-primary-600 text-text-800;
+        }
+        &.btn-tertiary {
+            @apply bg-tertiary-500 rounded-lg hover:bg-tertiary-700;
+        }
+    }
+    
+    .link {
+        @apply text-sm px-2 py-1 text-center cursor-pointer w-fit rounded-lg;
+        
+        &:focus {
+            @apply outline-primary-500 outline-solid outline-1;
+        }
+        
+        &.link-primary {
+            @apply text-primary-700
+        }
+        &.link-secondary {
+            @apply text-text-300 
+        }
+    }
+}

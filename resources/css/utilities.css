@@ -1,0 +1,39 @@
+@layer utilities {
+    .title {
+        @apply leading-tight;
+    }
+    
+    .subtitle {
+        @apply text-lg text-center
+    }
+    
+    .logo {
+        @apply align-baseline flex items-center justify-center gap-x-3 select-none;
+
+        .logo-icon {
+            @apply size-12 p-1 rounded-md flex items-center justify-center text-lg font-bold uppercase;
+            
+            p {
+                @apply text-white;
+            }
+
+        }
+        
+        h1, h2 {
+            @apply capitalize text-lg font-bold text-center
+        }
+    }
+
+    .textured {
+
+        background-image: repeating-linear-gradient(135deg, var(--stripe-color) 0, var(--stripe-color) 1px, transparent 0, transparent 50%);
+        background-size: 256px 192px;
+        
+        html[data-theme="dark"] & {
+            --stripe-color: color-mix(in srgb, var(--color-moonlight) 40%, transparent);
+        }
+        html[data-theme="light"] & {
+            --stripe-color: color-mix(in srgb, var(--color-sandstone) 80%, transparent);
+        }
+    }
+}

@@ -1,0 +1,1 @@
+{"version":3,"file":"ssr.js","names":[],"sources":["../../resources/js/ssr.js"],"sourcesContent":["import { createInertiaApp } from '@inertiajs/vue3';\n\ncreateInertiaApp({\n    pages: './Pages',\n});\n"],"mappings":""}

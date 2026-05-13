@@ -7,6 +7,7 @@ use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use App\Http\Middleware\HandleInertiaRequests;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -16,6 +17,17 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->web(append: [
+            HandleInertiaRequests::class,
+        ]);
+        
+        $middleware->preventRequestForgery(except: [
+            'profile/security-keys/options',
+            'profile/security-keys',
+            'a2f/passkey/options',
+            'a2f/passkey/verify',
+        ]);
+        
         $middleware->append(SetUserLocale::class);
 
         $middleware->redirectGuestsTo(fn () => null);
@@ -30,14 +42,18 @@ return Application::configure(basePath: dirname(__DIR__))
                 action: null,
                 description: "logs.api.authentication.required",
             );
-            return response()->json([
-                'data' => [],
-                'success' => false,
-                'code' => 403,
-                'message' => trans('internal/errors.unauthenticated.message'),
-                'errors' => [
-                    'authorization' => trans('internal/errors.unauthenticated.description'),
-                ],
-            ], 403);
+            if ($request->is("api/*")) {
+                return response()->json([
+                    'data' => [],
+                    'success' => false,
+                    'code' => 403,
+                    'message' => trans('internal/errors.unauthenticated.message'),
+                    'errors' => [
+                        'authorization' => trans('internal/errors.unauthenticated.description'),
+                    ],
+                ], 403);
+            }
+            
+            return redirect()->route("login");
         });
     })->create();

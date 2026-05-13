@@ -1,0 +1,13 @@
+@import "./components.generated.css";
+
+@layer components {
+    
+    /* === Components block === */
+    .box {
+        @apply border rounded-xl bg-night light:bg-sand border-border-500 
+        text-text-300 p-8 flex flex-col items-center justify-center;
+        
+        width: min(400px, 100%);
+    }
+
+}
