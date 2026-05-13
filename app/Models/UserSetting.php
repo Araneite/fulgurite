@@ -17,7 +17,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
     'host_scope_json',
     'force_actions_json',
     'primary_second_factor',
-    'totp_enabled'
+    'totp_enabled',
+    'totp_secret',
+    'passkey_credentials_json',
+    'second_factor_methods'
 ])]
 class UserSetting extends Model
 {
@@ -37,7 +40,25 @@ class UserSetting extends Model
             'force_actions_json' => "array",
             'primary_second_factor' => "string",
             'totp_enabled' => "boolean",
+            'totp_secret' => 'encrypted',
+            'passkey_credentials_json' => 'array',
+            'second_factor_methods' => 'array',
         ];
+    }
+    
+    public function enabledSecondFactorMethods(): array
+    {
+        return collect($this->second_factor_methods ?? [])
+            ->map(fn (string $method) => $method === 'totp' ? 'one_time_code' : $method)
+            ->intersect(['email', 'one_time_code', 'passkey'])
+            ->unique()
+            ->values()
+            ->all();
+    }
+    
+    public function hasSecondFactorMethod(string $method): bool
+    {
+        return in_array($method, $this->enabledSecondFactorMethods(), true);
     }
     
     /*protected function preferred_local(): string {

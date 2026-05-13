@@ -16,6 +16,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Laragear\WebAuthn\Contracts\WebAuthnAuthenticatable;
+use Laragear\WebAuthn\WebAuthnAuthentication;
+use Laragear\WebAuthn\WebAuthnData;
+use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\UuidInterface;
+
 
 #[Fillable([
     'username',
@@ -40,11 +46,13 @@ use Laravel\Sanctum\HasApiTokens;
     'created_at',
     'updated_at',
 ])]
-#[Hidden(['password'])]
-class User extends Authenticatable
+#[Hidden([
+    'password'
+])]
+class User extends Authenticatable implements WebAuthnAuthenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable, SoftDeletes, HasApiTokens, HasPermissions, HasApiPagination;
+    use HasFactory, Notifiable, SoftDeletes, HasApiTokens, HasPermissions, HasApiPagination, WebAuthnAuthentication;
 
     protected $table = 'fg_users';
 
@@ -68,6 +76,7 @@ class User extends Authenticatable
             'updated_by' => 'integer',
             'deleted_by' => 'integer',
             'password' => 'hashed',
+            'two_factor_confirmed_at' => 'datetime',
         ];
     }
 
@@ -142,4 +151,26 @@ class User extends Authenticatable
         
         return parent::delete();
     }
+    
+    public function webAuthnData(): WebAuthnData
+    {
+        $displayName = trim(collect([
+            $this->contact?->first_name,
+            $this->contact?->last_name,
+        ])->filter()->implode(' '));
+        
+        return WebAuthnData::make(
+            $this->email,
+            $displayName !== '' ? $displayName : ($this->username ?: $this->email)
+        );
+    }
+    
+    public function webAuthnId(): UuidInterface
+    {
+        return Uuid::uuid5(
+            Uuid::NAMESPACE_DNS,
+            config('app.key') . ':user:' . $this->getKey()
+        );
+    }
+    
 }
