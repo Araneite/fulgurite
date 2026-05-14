@@ -2,4 +2,8 @@
     h1, h2, h3, h4, h5, h6 {
         @apply inline-block align-baseline;
     }
+    
+    *:focus-visible {
+        @apply outline-none ring-1 ring-primary;
+    }
 }

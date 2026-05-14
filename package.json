@@ -20,6 +20,7 @@
     "dependencies": {
         "@laragear/webpass": "^2.1.2",
         "@primeuix/themes": "^2.0.3",
+        "primeicons": "^7.0.0",
         "primevue": "^4.5.5",
         "sortablejs": "^1.15.7"
     }

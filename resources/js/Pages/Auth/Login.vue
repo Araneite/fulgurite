@@ -10,7 +10,7 @@ defineOptions({
     layout: AuthLayout,
 });
 
-defineProps({
+const props = defineProps({
     resetPasswordUrl: {
         type: String,
         required: true,

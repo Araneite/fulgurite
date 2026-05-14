@@ -1,24 +1,28 @@
 @layer components {
     .btn {
-        @apply px-5 py-3 text-lg font-bold leading-tight cursor-pointer ease-in-out duration-300;
+        @apply px-5 py-3 text-lg font-bold cursor-pointer duration-300 outline-none;
+        transition-property: background,color,transform;
         
-        &:focus {
-            @apply outline-primary-800 outline-solid outline-2;
+        &:focus, &:focus-visible {
+            @apply outline-none ring-1 ring-primary;
         }
         
         &.btn-primary {
-            @apply bg-primary-500 rounded-lg hover:bg-primary-600 text-text-800;
+            @apply bg-primary-500 rounded-lg text-text-800 hover:bg-primary-600 focus-visible:bg-primary-600;
+        }
+        &.btn-secondary {
+            @apply bg-transparent rounded-lg border border-primary/60 hover:border-primary/80 hover:bg-primary/10 focus-visible:border-primary/80 focus-visible:bg-primary/10
         }
         &.btn-tertiary {
-            @apply bg-tertiary-500 rounded-lg hover:bg-tertiary-700;
+            @apply bg-transparent rounded-lg border border-white/20 hover:bg-white/5;
         }
     }
     
     .link {
-        @apply text-sm px-2 py-1 text-center cursor-pointer w-fit rounded-lg;
+        @apply text-sm px-2 py-1 text-center cursor-pointer w-fit rounded-lg duration-300 outline-none;
         
-        &:focus {
-            @apply outline-primary-500 outline-solid outline-1;
+        &:focus, &:focus-visible {
+            @apply outline-none ring-1 ring-primary;
         }
         
         &.link-primary {
@@ -26,6 +30,13 @@
         }
         &.link-secondary {
             @apply text-text-300 
+        }
+        &.link-danger {
+            @apply hover:text-danger;
+            
+            &:focus, &:focus-visible {
+                @apply ring-0 text-danger underline;
+            }
         }
     }
 }

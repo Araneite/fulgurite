@@ -21,11 +21,31 @@ Route::post('/a2f/passkey/verify', [TwoFactorController::class, 'verifyPasskey']
 
 Route::middleware('auth')->group(function () {
     Route::get('/security-keys', [SecurityKeyController::class, 'index'])->name('security-keys.index');
+
+    /**
+     * === Get Methods ===
+     */
+    /* --- Global --- */
+    Route::get("/", [UserPageController::class, "index"])
+        ->name("dashboard.home")
+        ->defaults("dashboard_page", [
+            "label"=> trans("pages/list.pages.dashboard"),
+            "icon"=> "pi-objects-column",
+            "section"=> trans("pages/list.pages.dashboard"),
+            "order"=> 10,
+            "permissions"=> []
+        ]);
+    
+    /* --- Profile --- */
+    Route::get('/profile', [ProfileController::class, 'show'])
+        ->name('dashboard.profile');
+    Route::get('/security-keys', [SecurityKeyController::class, 'index'])
+        ->name('security-keys.index');
+    
     Route::post('/security-keys/options', [SecurityKeyController::class, 'options'])->name('security-keys.options');
     Route::post('/security-keys', [SecurityKeyController::class, 'store'])->name('security-keys.store');
     Route::delete('/security-keys/{credential}', [SecurityKeyController::class, 'destroy'])->name('security-keys.destroy');
     
-    Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password.update');
     Route::put('/profile/two-factor', [ProfileController::class, 'updateTwoFactor'])->name('profile.two-factor.update');
@@ -38,9 +58,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/profile/totp/confirm', [ProfileController::class, 'confirmTotpSetup'])->name('profile.totp.confirm');
     Route::delete('/profile/totp', [ProfileController::class, 'disableTotp'])->name('profile.totp.disable');
 });
-
-Route::get("/", [UserPageController::class, "index"])
-    ->name("dashboard.home");
 
 Route::any('/plugins/{plugin}/{path?}', PluginProxyController::class)
     ->where('path', '.*')

@@ -1,0 +1,9 @@
+@layer components {
+    /* === Components blocks === */
+    .classic-form {
+        @apply flex flex-col gap-y-6
+    }
+    
+    /* === Components partials === */
+    
+}

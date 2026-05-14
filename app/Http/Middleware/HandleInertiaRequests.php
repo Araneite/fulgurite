@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Services\Dashboard\DashboardPageRegistry;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -40,11 +41,18 @@ class HandleInertiaRequests extends Middleware
             'auth'=> [
                 'user'=> $request->user()?->only(['id', 'username', 'email']),
             ],
+            "dashboard"=> [
+                "pages"=> fn ()=> app(DashboardPageRegistry::class)->forUser($request->user())
+            ],
+            "csrf_token"=> csrf_token(),
             'flash'=> [
                 'success'=> fn () => $request->session()->get('success'),
                 'error'=> fn () => $request->session()->get('error'),
                 'info'=> fn () => $request->session()->get('info'),
                 'warning'=> fn () => $request->session()->get('warning'),
+            ],
+            "trans"=> [
+                "layout"=> trans("dashboard/layouts/sidebar")
             ]
         ];
     }
