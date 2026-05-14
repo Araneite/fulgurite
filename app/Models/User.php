@@ -45,6 +45,7 @@ use Ramsey\Uuid\UuidInterface;
     'last_name',
     'created_at',
     'updated_at',
+    'deleted_at',
 ])]
 #[Hidden([
     'password'

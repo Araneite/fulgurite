@@ -20,7 +20,6 @@ return new class extends Migration
             $table->string("password");
 
             // Admin management
-            $table->string("role");
             $table->text("admin_notes")->nullable();
 
             // Suspension & access
