@@ -2,9 +2,18 @@
 
 return [
     "pages"=> [
-        "dashboard"=> "Dashboard",
-        "profile"=> "Profile",
-        "users"=> "Users",
+        "dashboard"=> [
+            "title"=> "Dashboard",
+            "description"=> ""
+        ],
+        "profile"=> [
+            "title"=> "Mon profil",
+            "description"=> "Informations personnelles, préférences et sécurité"
+        ],
+        "users"=> [
+            "title"=> "Utilisateurs",
+            "description"=> "Liste des utilisateurs"
+        ],
     ],
     "sections"=> [
         "global"=> "Global",

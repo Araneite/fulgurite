@@ -1,14 +1,12 @@
 <script setup>
+import { usePage } from "@inertiajs/vue3";
 import FlashToaster from "@/Components/Feedback/FlashToaster.vue";
-import Splitter from 'primevue/splitter';
-import SplitterPanel from "primevue/splitterpanel";
 import Sidebar from "@/Components/Navigation/Sidebar.vue";
+import Topbar from "@/Components/Navigation/Topbar.vue";
 
-const navItems = [
-    { label: "Dashboard", href: "/" },
-    { label: "Profil", href: "/profile" },
-    { label: "Paramètres", href: "/profile" },
-];
+const page = usePage();
+
+console.log(page.props.page);
 </script>
 
 <template>
@@ -17,8 +15,14 @@ const navItems = [
 
         <Sidebar />
         
-        <main class="w-full">
-            <slot />
+        <main class="w-full ml-56 relative">
+            <Topbar 
+                :title="page.props.page?.title ?? 'Dashboard'"
+                :description="page.props.page?.description ?? ''"
+            />
+            <div class="page p-5">
+                <slot />
+            </div>
         </main>
     </div>
 </template>

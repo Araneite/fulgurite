@@ -322,16 +322,6 @@ function deleteSecurityKey(id) {
 
 <template>
     <div class="min-h-full w-full bg-[#0b1016] text-slate-200">
-        <header class="border-b border-slate-800 bg-[#121820] px-6 py-4">
-            <div class="flex items-center justify-between gap-4">
-                <div>
-                    <h1 class="text-lg font-semibold text-slate-100">Mon profil</h1>
-                    <p class="text-sm text-slate-500">Infos personnelles, préférences et sécurité</p>
-                </div>
-
-                <Button label="Notifications" severity="secondary" rounded />
-            </div>
-        </header>
 
         <main class="grid gap-4 p-6 xl:grid-cols-[minmax(0,1fr)_420px]">
             <section class="space-y-4">

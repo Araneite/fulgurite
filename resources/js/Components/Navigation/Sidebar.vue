@@ -15,17 +15,19 @@ const sections = computed(() => page.props.dashboard?.pages ?? []);
 </script>
 
 <template>
-    <aside class="min-h-screen w-56 shrink-0 bg-[#121820] py-4 text-white flex flex-col justify-between">
-        <div class="nav-start px-3">
-            <Link
-                href="/"
-                class="mb-6 flex h-12 items-center gap-3 rounded-md px-2 hover:bg-white/5"
-            >
-                <img :src="'/assets/img/fulgurite-logo.svg'" alt="Fulgurite" class="size-8">
-                <span class="font-semibold">Fulgurite</span>
-            </Link>
-    
-            <nav class="space-y-6">
+    <aside class="min-h-screen w-56 shrink-0 bg-night py-4 text-white flex flex-col justify-between fixed border-e border-r-white/10">
+        <div class="nav-start">
+            <div class="px-3 pb-3 border-b border-b-white/10">
+                <Link
+                    href="/"
+                    class="flex h-12 items-center gap-3 rounded-md px-2 hover:bg-white/5"
+                >
+                    <img :src="'/assets/img/fulgurite-logo.svg'" alt="Fulgurite" class="size-8">
+                    <span class="font-semibold">Fulgurite</span>
+                </Link>
+            </div>
+        
+            <nav class="px-3 py-6">
                 <section
                     v-for="section in sections"
                     :key="section.label"

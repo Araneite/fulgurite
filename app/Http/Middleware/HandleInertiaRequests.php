@@ -36,6 +36,8 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $pageMeta = $request->route()?->defaults["dashboard_page"] ?? [];
+        
         return [
             ...parent::share($request),
             'auth'=> [
@@ -43,6 +45,10 @@ class HandleInertiaRequests extends Middleware
             ],
             "dashboard"=> [
                 "pages"=> fn ()=> app(DashboardPageRegistry::class)->forUser($request->user())
+            ],
+            "page"=> [
+                "title"=> $pageMeta["label"] ?? "Dashboard",
+                "description"=> $pageMeta["description"] ?? "",
             ],
             "csrf_token"=> csrf_token(),
             'flash'=> [

@@ -2,9 +2,18 @@
 
 return [
     "pages"=> [
-        "dashboard"=> "Vue d'ensemble",
-        "profile"=> "Profil",
-        "users"=> "Utilisateurs",
+        "dashboard"=> [
+            "title"=> "Dashboard",
+            "description"=> ""
+        ],
+        "profile"=> [
+            "title"=> "Profile",
+            "description"=> "Personal data"
+        ],
+        "users"=> [
+            "title"=> "Users",
+            "description"=> "List of users"
+        ],
     ],
     "sections"=> [
         "global"=> "Vue d'ensemble",
