@@ -29,16 +29,22 @@ Route::middleware('auth')->group(function () {
     Route::get("/", [UserPageController::class, "index"])
         ->name("dashboard.home")
         ->defaults("dashboard_page", [
-            "label"=> trans("pages/list.pages.dashboard"),
+            "label"=> trans("pages/list.pages.dashboard.title"),
+            "description"=> trans("pages/list.pages.dashboard.description"),
             "icon"=> "pi-objects-column",
-            "section"=> trans("pages/list.pages.dashboard"),
+            "section"=> trans("pages/list.sections.global"),
             "order"=> 10,
-            "permissions"=> []
+            "permissions"=> [],
+            "in_nav"=> true,
         ]);
     
     /* --- Profile --- */
     Route::get('/profile', [ProfileController::class, 'show'])
-        ->name('dashboard.profile');
+        ->name('dashboard.profile')
+        ->defaults("dashboard_page", [
+            "label"=> trans("pages/list.pages.profile.title"),
+            "description"=> trans("pages/list.pages.profile.description"),
+        ]);
     Route::get('/security-keys', [SecurityKeyController::class, 'index'])
         ->name('security-keys.index');
     

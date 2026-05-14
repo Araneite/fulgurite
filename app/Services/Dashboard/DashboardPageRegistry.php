@@ -15,6 +15,7 @@ class DashboardPageRegistry
             ->filter(fn (LaravelRoute $route)=> in_array("GET", $route->methods(), true))
             ->map(fn (LaravelRoute $route)=> $this->pageFromRoute($route))
             ->filter()
+            ->filter(fn (array $page)=> $page["in_nav"] === true)
             ->filter(fn (array $page)=> $this->userCanAccess($user, $page))
             ->sortBy("order")
             ->values();
@@ -34,6 +35,8 @@ class DashboardPageRegistry
         
         return [
             "key"=> $meta["key"] ?? $name ?? $route->uri(),
+            "in_nav"=> $meta["in_nav"] ?? false,
+            'description'=> $meta["description"] ?? "",
             "label"=> $meta["label"] ?? $name ?? $route->uri(),
             "url"=> "/" . ltrim($uri, "/"),
             "icon"=> $meta["icon"] ?? "pi-circle",
@@ -108,7 +111,8 @@ class DashboardPageRegistry
             "label"=> $page["label"],
             "url"=> $page["url"],
             "icon"=> $page["icon"],
-            "order"=>   $page["order"]
+            "order"=>   $page["order"],
+            "in_nav"=> $page["in_nav"] ?? false,
         ];
     }
     
