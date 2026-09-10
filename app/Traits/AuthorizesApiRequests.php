@@ -53,9 +53,11 @@ trait AuthorizesApiRequests
             );
             throw new AuthorizationException(trans('internal/errors.unauthorized.message'),
              [
-                 "authorization"=> trans('internal/errors.unauthorized.detail',[
-                     "end_sentence"=> trans($actionTranslationKey),
-                 ])
+                 'authorization' => method_exists($user, 'permissionDenialApiMessage')
+                     ? $user->permissionDenialApiMessage($actionTranslationKey, $arguments)
+                     : trans('internal/errors.unauthorized.detail', [
+                         'end_sentence' => trans($actionTranslationKey),
+                     ])
              ]);
         }
     }

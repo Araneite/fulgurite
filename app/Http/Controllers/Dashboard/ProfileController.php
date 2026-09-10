@@ -13,8 +13,6 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
-use Laragear\WebAuthn\Http\Requests\AttestationRequest;
-use Laragear\WebAuthn\Http\Requests\AttestedRequest;
 use Illuminate\Http\JsonResponse;
 use App\Services\Auth\TotpService;
 use Illuminate\Validation\ValidationException;
@@ -36,17 +34,6 @@ class ProfileController extends Controller
         $user = $request->user()->load(["contact", "settings", "role"]);
         
         
-        $credentials = $user->webAuthnCredentials()
-            ->latest()
-            ->get()
-            ->map(fn ($credential)=> [
-                "id"=> $credential->id,
-                "alias"=> $credential->alias,
-                "origin"=> $credential->origin,
-                "enabled"=> $credential->isEnabled(),
-                "created_at"=> $credential->created_at,
-            ]);
-        
         return Inertia::render("Dashboard/Profile/Show", [
             "profile"=> [
                 "username"=> $user->username,
@@ -65,7 +52,6 @@ class ProfileController extends Controller
                 "primary_second_factor"=> $user->settings?->primary_second_factor,
                 "totp_enabled"=> (bool) $user->settings?->totp_enabled
             ],
-            "securityKeys"=> $credentials,
             "methodOptions"=> $this->available2FAMethods,
             "localeOptions"=> $this->availableLocales,
             "startPageOptions"=> $this->availableStartPages
@@ -140,39 +126,6 @@ class ProfileController extends Controller
         ]);
         
         return back()->with("success", trans("pages/profile.success.two_factor_updated"));
-    }
-    
-    public function securityKeyOptions(AttestationRequest $request) {
-        return $request->secureRegistration()->toCreate();
-    }
-    
-    public function storeSecurityKey(AttestedRequest $request): JsonResponse
-    {
-        $alias = trim((string) $request->input("alias", ""));
-        
-        $credentialId = $request->save([
-            "alias" => $alias !== ""
-                ? $alias
-                : trans("auth/two-factor.methods.passkey"),
-        ]);
-        
-        return response()->json([
-            "success" => true,
-            "credential_id" => $credentialId,
-            "message" => trans("pages/profile.success.passkey_added"),
-        ]);
-    }
-    
-    
-    public function destroySecurityKey(Request $request, string $credential): RedirectResponse {
-        $credential = $request->user()
-            ->webAuthnCredentials()
-            ->whereKey($credential)
-            ->firstOrFail();
-        
-        $credential->delete();
-        
-        return back()->with("success", trans("pages/profile.success.passkey_deleted"));
     }
     
     public function startTotpSetup(Request $request, TotpService $totpService): JsonResponse {

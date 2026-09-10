@@ -43,7 +43,7 @@ class UserLoginRequest extends FormRequest
             "password"=> $this->validated("password")            
         ], $this->boolean('remember'))) {
             throw ValidationException::withMessages([
-                "auth"=> trans("auth/login.errors.failed")
+                "auth"=> trans("forms/login.errors.failed")
             ]);
         }
         

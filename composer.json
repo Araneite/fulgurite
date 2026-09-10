@@ -10,8 +10,8 @@
         "ext-zlib": "*",
         "bacon/bacon-qr-code": "^3.1",
         "inertiajs/inertia-laravel": "^3.1",
-        "laragear/webauthn": "^5.0",
         "laravel/framework": "^13.0",
+        "laravel/passkeys": "^0.2.0",
         "laravel/sanctum": "^4.3",
         "laravel/tinker": "^3.0",
         "livewire/livewire": "^4.3"

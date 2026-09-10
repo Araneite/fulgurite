@@ -14,13 +14,17 @@ Route::get('reset-password', [UserPageController::class, 'showResetPassword'])->
 // 2FA
 Route::get('/a2f', [TwoFactorController::class, 'show'])->name('two-factor.show');
 Route::post('/a2f', [TwoFactorController::class, 'verify'])->name('two-factor.verify');
+Route::get('/2fa', [TwoFactorController::class, 'show'])->name('two-factor.show');
+Route::post('/2fa', [TwoFactorController::class, 'verify'])->name('two-factor.verify');
 Route::post('/a2f/method', [TwoFactorController::class, 'changeMethod'])->name('two-factor.method');
 Route::post('/a2f/email-code', [TwoFactorController::class, 'sendEmailCode'])->name('two-factor.email-code');
 Route::post('/a2f/passkey/options', [TwoFactorController::class, 'passkeyOptions'])->name('two-factor.passkey.options');
 Route::post('/a2f/passkey/verify', [TwoFactorController::class, 'verifyPasskey'])->name('two-factor.passkey.verify');
 
-Route::middleware('auth')->group(function () {
-    Route::get('/security-keys', [SecurityKeyController::class, 'index'])->name('security-keys.index');
+Route::get('/2fa/passkey/options', [TwoFactorController::class, 'passkeyOptions'])
+    ->name('two-factor.passkey.options');
+Route::post('/2fa/passkey/verify', [TwoFactorController::class, 'verifyPasskey'])
+    ->name('two-factor.passkey.verify');
 
     /**
      * === Get Methods ===
@@ -51,6 +55,20 @@ Route::middleware('auth')->group(function () {
     Route::post('/security-keys/options', [SecurityKeyController::class, 'options'])->name('security-keys.options');
     Route::post('/security-keys', [SecurityKeyController::class, 'store'])->name('security-keys.store');
     Route::delete('/security-keys/{credential}', [SecurityKeyController::class, 'destroy'])->name('security-keys.destroy');
+    // === 2FA Confirmation === 
+    Route::post('/user/confirm-identity', [TwoFactorController::class, 'confirmIdentity'])
+        ->name('user.confirm-identity');
+    Route::post('/user/confirm-identity/method', [TwoFactorController::class, 'changeIdentityMethod'])
+        ->name('user.confirm-identity.method');
+    Route::post('/user/confirm-identity/email-code', [TwoFactorController::class, 'sendIdentityEmailCode'])
+        ->middleware('throttle:6,1')
+        ->name('user.confirm-identity.email-code');
+    Route::get('/user/confirm-identity/passkey/options', [TwoFactorController::class, 'identityPasskeyOptions'])
+        ->middleware('throttle:10,1')
+        ->name('user.confirm-identity.passkey.options');
+    Route::post('/user/confirm-identity/passkey/verify', [TwoFactorController::class, 'verifyIdentityPasskey'])
+        ->middleware('throttle:10,1')
+        ->name('user.confirm-identity.passkey.verify');
     
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password.update');

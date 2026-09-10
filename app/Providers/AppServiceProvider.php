@@ -11,6 +11,9 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 use App\Models\PersonalAccessToken;
 use Laravel\Sanctum\Sanctum;
+use App\Models\Passkey;
+use App\Models\User;
+use Laravel\Passkeys\Passkeys;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -27,6 +30,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Passkeys::useUserModel(User::class);
+        Passkeys::usePasskeyModel(Passkey::class);
+        
         Blueprint::macro('userStamps', function () {
             /** @var Blueprint $this */
            $this->unsignedBigInteger('created_by');

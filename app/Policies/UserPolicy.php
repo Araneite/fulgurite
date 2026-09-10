@@ -11,7 +11,11 @@ class UserPolicy
     }
 
     public function view(User $user, User $model): bool {
-        return $user->hasPermission('users:view');
+        return $user->hasPermission('users:view', $model);
+    }
+    
+    public function viewSensitive(User $user, User $model): bool {
+        return $user->hasPermission('users:view-sensitive', $model);
     }
 
     public function create(User $user): bool {
@@ -19,11 +23,11 @@ class UserPolicy
     }
 
     public function update(User $user, User $model): bool {
-        return $user->hasPermission('users:edit');
+        return $user->hasPermission('users:edit', $model);
     }
 
     public function delete(User $user, User $model): bool {
-        return $user->hasPermission('users:delete');
+        return $user->hasPermission('users:delete', $model);
     }
 
     public function restore(User $user, User $model): bool {

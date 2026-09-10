@@ -15,12 +15,9 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Passkeys\Contracts\PasskeyUser;
+use Laravel\Passkeys\PasskeyAuthenticatable;
 use Laravel\Sanctum\HasApiTokens;
-use Laragear\WebAuthn\Contracts\WebAuthnAuthenticatable;
-use Laragear\WebAuthn\WebAuthnAuthentication;
-use Laragear\WebAuthn\WebAuthnData;
-use Ramsey\Uuid\Uuid;
-use Ramsey\Uuid\UuidInterface;
 
 
 #[Fillable([
@@ -32,9 +29,11 @@ use Ramsey\Uuid\UuidInterface;
     'admin_notes',
     'suspended_until',
     'suspension_reason',
+    'second_factor_methods',
     'expire_at',
     'active',
     'password_set_at',
+    'force_actions_json',
     'last_login',
     'contact_id',
     'user_settings_id',
@@ -50,10 +49,10 @@ use Ramsey\Uuid\UuidInterface;
 #[Hidden([
     'password'
 ])]
-class User extends Authenticatable implements WebAuthnAuthenticatable
+class User extends Authenticatable implements PasskeyUser
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable, SoftDeletes, HasApiTokens, HasPermissions, HasApiPagination, WebAuthnAuthentication;
+    use HasFactory, Notifiable, SoftDeletes, HasApiTokens, HasPermissions, HasApiPagination, PasskeyAuthenticatable;
 
     protected $table = 'fg_users';
 
@@ -78,6 +77,8 @@ class User extends Authenticatable implements WebAuthnAuthenticatable
             'deleted_by' => 'integer',
             'password' => 'hashed',
             'two_factor_confirmed_at' => 'datetime',
+            'second_factor_methods'=> 'array',
+            'force_actions_json' => 'array',
         ];
     }
 
@@ -151,27 +152,6 @@ class User extends Authenticatable implements WebAuthnAuthenticatable
         $this->update($data);
         
         return parent::delete();
-    }
-    
-    public function webAuthnData(): WebAuthnData
-    {
-        $displayName = trim(collect([
-            $this->contact?->first_name,
-            $this->contact?->last_name,
-        ])->filter()->implode(' '));
-        
-        return WebAuthnData::make(
-            $this->email,
-            $displayName !== '' ? $displayName : ($this->username ?: $this->email)
-        );
-    }
-    
-    public function webAuthnId(): UuidInterface
-    {
-        return Uuid::uuid5(
-            Uuid::NAMESPACE_DNS,
-            config('app.key') . ':user:' . $this->getKey()
-        );
     }
     
 }
