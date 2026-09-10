@@ -7,7 +7,7 @@ import CsrfForm from "@/Components/Forms/CsrfForm.vue";
 const page = usePage();
 
 const user = computed(()=> page.props.auth?.user)
-const userFirstChar = page.props.auth?.user.username.charAt(0).toUpperCase();
+const userFirstChar = computed(()=> page.props.auth?.user.username.charAt(0).toUpperCase());
 
 const trans = page.props.trans;
 

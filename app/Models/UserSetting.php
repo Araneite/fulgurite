@@ -20,7 +20,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
     'totp_enabled',
     'totp_secret',
     'passkey_credentials_json',
-    'second_factor_methods'
+    'second_factor_methods',
+    'user_id'
 ])]
 class UserSetting extends Model
 {

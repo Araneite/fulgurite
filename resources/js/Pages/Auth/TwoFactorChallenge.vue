@@ -2,11 +2,7 @@
 import { computed } from "vue";
 import { router, useForm } from "@inertiajs/vue3";
 import AuthLayout from "@/Layouts/AuthLayout.vue";
-import Webpass from "@laragear/webpass";
-import Button from "primevue/button";
-import InputOtp from "primevue/inputotp";
-import Message from "primevue/message";
-import Select from "primevue/select";
+import { Passkeys } from '@laravel/passkeys';
 
 defineOptions({
     layout: AuthLayout,
@@ -31,6 +27,8 @@ const props = defineProps({
     },
 });
 
+const isPasskey = computed(()=> form.method === 'passkey')
+
 const form = useForm({
     method: props.selectedMethod,
     code: "",
@@ -40,12 +38,14 @@ const availableMethods = computed(() => props.methods ?? []);
 const hasMethodSwitcher = computed(() => availableMethods.value.length > 1);
 const requiresOtp = computed(() => ["email", "one_time_code"].includes(form.method));
 
+console.log(props.methods)
+
 const selectedMethodLabel = computed(() => {
     return availableMethods.value.find((method) => method.value === form.method)?.label ?? "";
 });
 
 function submit() {
-    form.post("/a2f", {
+    form.post("/2fa", {
         preserveScroll: true,
         onError: () => {
             form.reset("code");
@@ -74,23 +74,19 @@ function resendEmailCode() {
 
 async function verifyPasskey() {
     form.clearErrors();
-
-    if (Webpass.isUnsupported()) {
-        form.setError("passkey", "Ce navigateur ne supporte pas les clés d’accès.");
-        return;
+    
+    try {
+        const response = await Passkeys.verify({
+            routes: {
+                options: '/2fa/passkey/options',
+                submit: '/2fa/passkey/verify',
+            },
+        });
+        
+        window.location.href = response.redirect ??  '/';
+    } catch (error) {
+        form.setError('passkey', error?.message ?? trans.errors.invalid_passkey )
     }
-
-    const result = await Webpass.assert(
-        "/a2f/passkey/options",
-        "/a2f/passkey/verify"
-    );
-
-    if (!result.success) {
-        form.setError("passkey", result.error ?? trans.errors.invalid_passkey);
-        return;
-    }
-
-    window.location.href = result.redirect ?? "/";
 }
 </script>
 
@@ -112,10 +108,11 @@ async function verifyPasskey() {
                 {{ trans.fields.method }}
             </label>
 
-            <Select
+            
+            <USelect
                 id="two_factor_method"
                 v-model="form.method"
-                :options="availableMethods"
+                :items="availableMethods"
                 option-label="label"
                 option-value="value"
                 class="w-full"
@@ -123,22 +120,29 @@ async function verifyPasskey() {
             />
         </div>
 
-        <Message v-if="form.method === 'email'" severity="info" :closable="false">
-            {{ trans.email_sent_to }} {{ maskedEmail }}
-        </Message>
+<!--        <Message v-if="form.method === 'email'" severity="info" :closable="false">-->
+<!--            {{ trans.email_sent_to }} {{ maskedEmail }}-->
+<!--        </Message>-->
 
         <div v-if="requiresOtp" class="flex flex-col items-center gap-3">
             <label for="two_factor_code" class="text-sm text-text-300">
                 {{ selectedMethodLabel }}
             </label>
 
-            <InputOtp
+            <UPinInput 
+                otp
                 id="two_factor_code"
-                v-model="form.code"
+                name="code"
                 :length="6"
-                integer-only
-                autofocus
-            />
+                v-model="form.code"
+            ></UPinInput>
+<!--            <InputOtp-->
+<!--                id="two_factor_code"-->
+<!--                v-model="form.code"-->
+<!--                :length="6"-->
+<!--                integer-only-->
+<!--                autofocus-->
+<!--            />-->
 
             <p v-if="form.errors.code" class="text-sm text-red-400">
                 {{ form.errors.code }}
@@ -149,32 +153,37 @@ async function verifyPasskey() {
             {{ form.errors.passkey }}
         </p>
 
-        <Button
-            v-if="requiresOtp"
-            type="submit"
+<!--        <Button-->
+<!--            v-if="requiresOtp"-->
+<!--            type="submit"-->
+<!--            :label="trans.confirm_button"-->
+<!--            :loading="form.processing"-->
+<!--            class="w-full"-->
+<!--        />-->
+
+        <UButton
             :label="trans.confirm_button"
-            :loading="form.processing"
+            type="submit"
             class="w-full"
-        />
+        ></UButton>
+<!--        <Button-->
+<!--            v-else-->
+<!--            type="button"-->
+<!--            :label="trans.passkey_button"-->
+<!--            :loading="form.processing"-->
+<!--            class="w-full"-->
+<!--            @click="verifyPasskey"-->
+<!--        />-->
 
-        <Button
-            v-else
-            type="button"
-            :label="trans.passkey_button"
-            :loading="form.processing"
-            class="w-full"
-            @click="verifyPasskey"
-        />
-
-        <Button
-            v-if="form.method === 'email'"
-            type="button"
-            severity="secondary"
-            variant="text"
-            :label="trans.resend_email_code"
-            class="w-full"
-            @click="resendEmailCode"
-        />
+<!--        <Button-->
+<!--            v-if="form.method === 'email'"-->
+<!--            type="button"-->
+<!--            severity="secondary"-->
+<!--            variant="text"-->
+<!--            :label="trans.resend_email_code"-->
+<!--            class="w-full"-->
+<!--            @click="resendEmailCode"-->
+<!--        />-->
     </form>
 </template>
 

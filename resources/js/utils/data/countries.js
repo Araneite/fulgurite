@@ -1,0 +1,16 @@
+export const countries = [
+    { name: 'France', extension: '33', flag: '🇫🇷' },
+    { name: 'Belgique', extension: '32', flag: '🇧🇪' },
+    { name: 'Suisse', extension: '41', flag: '🇨🇭' },
+    { name: 'Luxembourg', extension: '352', flag: '🇱🇺' },
+    { name: 'Canada', extension: '1', flag: '🇨🇦' },
+    { name: 'États-Unis', extension: '1', flag: '🇺🇸' },
+    { name: 'Royaume-Uni', extension: '44', flag: '🇬🇧' },
+    { name: 'Allemagne', extension: '49', flag: '🇩🇪' },
+    { name: 'Espagne', extension: '34', flag: '🇪🇸' },
+    { name: 'Italie', extension: '39', flag: '🇮🇹' },
+    { name: 'Portugal', extension: '351', flag: '🇵🇹' },
+    { name: 'Maroc', extension: '212', flag: '🇲🇦' },
+    { name: 'Algérie', extension: '213', flag: '🇩🇿' },
+    { name: 'Tunisie', extension: '216', flag: '🇹🇳' },
+];

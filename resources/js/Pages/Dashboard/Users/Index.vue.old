@@ -1,0 +1,626 @@
+<script setup lang="ts">
+import {h, computed, ref, resolveComponent, useTemplateRef, watch} from 'vue';
+import { router, usePage } from '@inertiajs/vue3';
+import { upperFirst } from 'scule'
+import { useClipboard } from '@vueuse/core';
+
+import AppLayout from "@/Layouts/DashboardLayout.vue";
+import { truncate } from '@/utils/string.js';
+import PhoneInput from "@/Components/Forms/PhoneInput.vue";
+
+defineOptions({
+    layout: AppLayout,
+});
+
+const page = usePage();
+
+const props = defineProps({
+    users: { type: Object, required: true },
+    filters: { type: Object, required: true },
+    fields: { type: Object, required: true },
+    tableName: { type: String, required: false },
+    locale: { type: String, required: false },
+    __: { type: Object, required: true},
+    phoneCountries: { type: Object, required: true },
+    permissions: { type: Object, required: false }
+});
+
+const currentUserId = computed(() => {
+    return page.props.auth?.user?.id ?? null
+})
+const permissions = computed(() => {
+    return props.permissions ?? {
+        view: true,
+        create: false,
+        edit: false,
+        delete: false,
+        restore: false,
+        
+    }
+})
+console.log(permissions.value)
+
+// === Toast === 
+const toast = useToast();
+
+// === Loading ===
+const usersLoading = ref(false);
+
+function reloadUsers(params = {}) {
+    usersLoading.value = true;
+    
+    router.get('/users', {
+        ...props.filters,
+        ...params,
+    }, {
+        only: ['users', 'filters'],
+        preserveScroll: true,
+        preserveState: true,
+        replace: true,
+        async: true,
+        onFinish: () => {
+            usersLoading.value = false;
+        }
+    })
+}
+
+// === Filter === 
+const globalFilter = ref(props.filters.search ?? '');
+let searchTimeout: ReturnType<typeof setTimeout> | null = null;
+
+watch(globalFilter, search => {
+    if (search === (props.filters.search ?? '')) {
+        return;
+    }
+    
+    if (searchTimeout) {
+        clearTimeout(searchTimeout);
+    }
+    
+    searchTimeout = setTimeout(() => {
+        rowSelection.value = {};
+        
+        reloadUsers({search, page: 1})
+    }, 300)
+})
+
+// === Selection ===
+const table = useTemplateRef('table')
+const rowSelection = ref({});
+const UCheckbox = resolveComponent('UCheckbox');
+const totalSelected = computed(() => {
+    return Object.keys(rowSelection.value).length
+})
+
+function onSelect(e, row) {
+    row.toggleSelected(!row.getIsSelected());
+}
+function onUnselectAll(e) {
+    rowSelection.value = {};
+}
+
+// === Paginator === 
+const currentPage = computed(() =>   props.users.meta.current_page ?? 1);
+const perPage = computed(() => props.users.meta.per_page ?? props.filters.per_page ?? 10);
+const total = computed(() => props.users.meta.total ?? 0);
+const perPageSelectItems = ref([2, 5, 10, 20, 50, 100]);
+const perPageSelectValue = ref(Number(props.filters.per_page ?? perPage.value));
+
+function goToPage(page: number) {
+    if (Number(page) === Number(currentPage.value)) {
+        return;
+    }
+
+    reloadUsers({ page })
+}
+watch(perPageSelectValue, (newPerPage) => {
+    if (Number(newPerPage) === Number(props.filters.per_page)) {
+        return;
+    }
+    
+    rowSelection.value = {};
+
+    reloadUsers({
+        per_page: newPerPage,
+        page: 1,
+    });
+});
+
+// === Columns visibility ===
+const columnVisibility = ref({
+    id: false,
+});
+
+// === Context menu ===
+const contextMenuItems = ref([]);
+const { copy } = useClipboard(); 
+
+function getRowMenuItems(row) {
+    return [
+        {
+            type: 'label' as const,
+            label: props.__.table.actions.sections.actions
+        },
+        {
+            label: props.__.table.actions.copy_email,
+            ui: {
+                item: 'cursor-pointer rounded-md',
+            },
+            onSelect() {
+                copy(row.original.email)
+                
+                toast.add({
+                    title: props.__.table.toasts.copy_email.title,
+                    color: 'success',
+                    icon: 'i-lucide-circle-check',
+                })
+            }
+        },
+        {
+            type: 'separator' as const
+        },
+        {
+            label: props.__.table.actions.delete,
+            icon: 'i-lucide-trash',
+            class: 'text-danger hover:text-danger',
+            ui: {
+                itemLeadingIcon: 'text-danger',
+                item: 'rounded-md cursor-pointer data-highlighted:bg-danger/20',
+            },
+            onSelect() {
+                console.log(`Suppression de l'utilisateur ${row.original.username}...`)
+                
+                toast.add({
+                    color: 'success',
+                    title: props.__.table.actions.delete,
+                })
+            }
+        }
+    ]
+}
+
+function onContextMenu(e, row) {
+    contextMenuItems.value = getRowMenuItems(row);
+}
+
+// === Modal === 
+const modalCreateOpen = ref(false);
+
+function openCreateModal() {
+    modalCreateOpen.value = true;
+}
+
+// === Columns === 
+const columns = [
+    {
+        id: 'select',
+        header: ({ table }) =>
+            h(UCheckbox, {
+                modelValue: table.getIsSomePageRowsSelected()
+                    ? 'indeterminate'
+                    : table.getIsAllPageRowsSelected(),
+                'onUpdate:modelValue': (value: boolean | 'indeterminate') =>
+                    table.toggleAllPageRowsSelected(!!value),
+                'aria-label': 'Select all'
+            }),
+        cell: ({ row }) =>
+            h(UCheckbox, {
+                modelValue: row.getIsSelected(),
+                'onUpdate:modelValue': (value: boolean | 'indeterminate') => row.toggleSelected(!!value),
+                'aria-label': 'Select row'
+            }),
+        enableHiding: false
+    },
+    {
+        accessorKey: 'id',
+        header: '#ID',
+        cell: ({row})=> {
+         return `#${row.original.id}`   
+        },
+    },
+    {
+        accessorKey: 'username',
+        header: props.__.table.header.username,
+        meta: {
+            class: {
+                td: 'text-primary-light font-semibold min-w-20'
+            }
+        }
+    },
+    {
+        accessorKey: 'email',
+        header: props.__.table.header.contact
+    },
+    {
+        accessorKey: 'active',
+        header: props.__.table.header.active
+    },
+    {
+        accessorKey: 'admin_notes',
+        header: props.__.table.header.admin_notes,
+    },
+    {
+        accessorKey: 'updated_at',
+        header: props.__.table.header.updated_at
+    },
+    {
+        id: 'actions',
+        header: '',
+        enableHiding: false
+    }
+]
+
+// === Data ===
+// --- Admin notes expands ---
+const expandedAdminNotes = ref({});
+
+function toggleAdminNote(userId: number | string) {
+    const key = String(userId);
+    
+    expandedAdminNotes.value[key] = !expandedAdminNotes.value[key];
+}
+
+function isAdminNoteExpanded(userId: number | string):  boolean {
+    return expandedAdminNotes.value[String(userId)] === true;
+}
+
+// --- Editable users ---
+const editingUserId = ref(null);
+const editingUserForm = ref({});
+const saveEditingUserForm = ref(false);
+
+function startEditingUser(user) {
+    editingUserId.value = user.id;
+    editingUserForm.value = {
+        username: user.username,
+        email: user.email,
+        active: user.active,
+        admin_notes: user.admin_notes,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        job_title: user.job_title,
+        phone: {
+            extension: user.phone.extension ?? '',
+            number: user.phone.number ?? '',
+        }
+    };
+}
+
+function cancelEditingUser() {
+    editingUserId.value = null;
+    editingUserForm.value = {};
+}
+
+function saveEditingUser(user) {
+    saveEditingUserForm.value = true;
+    router.patch(`/users/${user.id}`, editingUserForm.value, {
+        only: ['users', 'filters', 'flash'],
+        preserveScroll: true,
+        preserveState: true,
+        onSuccess: cancelEditingUser,
+        onFinish: () => saveEditingUserForm.value = false
+    })
+}
+
+// --- Create a model ---
+const createModelForm = ref({});
+const saveNewModelForm = ref(false);
+
+
+// === Meta ===
+const dropdownMetaUi = {
+    content: 'z-99'
+}
+const tableMeta = {
+    class: {
+        tr: (row) => [
+            row.index % 2 === 0 ? 'bg-white/[0.02]' : 'bg-white/[0.05]',
+            'hover:bg-white/10 transition-colors',
+        ].join(' '),
+    },
+};
+</script>
+
+<template>
+    <UModal 
+        v-model:open="modalCreateOpen"
+        :ui="{
+            overlay: 'z-9999999',
+            content: 'z-99999999'
+        }"
+    >
+        <template #header>
+            
+        </template>
+        <template #body>
+            <UForm />
+        </template>
+    </UModal>
+    
+    <section class="min-h-0 h-full">
+        <div class="container flex flex-col gap-4 h-full justify-between min-h-0">
+            <div class="table-header flex justify-between items-center">
+                <div class="flex flex-col gap-1">
+                    <UInput v-model="globalFilter" placeholder="Filter..."></UInput>
+                </div>
+                
+                <div class="flex gap-2">
+                    <UButton 
+                        v-if="permissions.create"
+                        :label="props.__.table.actions.create"
+                        @click="openCreateModal"
+                    />
+                    <UDropdownMenu
+                        :items="
+                          table?.tableApi
+                            ?.getAllColumns()
+                            .filter((column) => column.getCanHide())
+                            .map((column) => ({
+                              label: upperFirst(column.id),
+                              type: 'checkbox' as const,
+                              checked: column.getIsVisible(),
+                              onUpdateChecked(checked: boolean) {
+                                table?.tableApi?.getColumn(column.id)?.toggleVisibility(!!checked)
+                              },
+                              onSelect(e: Event) {
+                                e.preventDefault()
+                              }
+                            }))
+                        "
+                        :ui="dropdownMetaUi"
+                    >
+                        <UButton
+                            :label="props.__.table.columns"
+                            color="neutral"
+                            variant="outline"
+                            trailing-icon="i-lucide-chevron-down"
+                        ></UButton>
+                    </UDropdownMenu>
+                </div>
+            </div>
+    
+            <UContextMenu
+                :items="contextMenuItems"
+            >           
+                <div class="min-h-0 flex-1 overflow-auto rounded-md">
+                    <UTable
+                        ref="table"
+                        v-model:row-selection="rowSelection"
+                        v-model:columnVisibility="columnVisibility"
+                        :data="users.data"
+                        :columns="columns"
+                        :get-row-id="(row)=> row.id"
+                        :loading="usersLoading"
+                        :meta="tableMeta"
+                        :ui="{
+                            root: 'min-h-[300px]',
+                            base: 'min-w-[1200px] w-full table-auto relative',
+                            thead: 'sticky top-0 z-20 bg-[#0b1016]',
+                            tbody: 'align-top',
+                            tr: 'h-auto'
+                        }"
+                        @contextmenu="onContextMenu"
+                        @select="onSelect"
+                    >
+                        <template #username-cell="{ row, getValue }">
+                            
+                            <template
+                                v-if="editingUserId === row.original.id"
+                            >
+                                <div class="flex gap-2">
+                                    <UBadge
+                                        v-if="currentUserId === row.original.id"
+                                        :label="props.__.table.cell.username.badge"
+                                        color="success"
+                                        size="sm"
+                                        class="rounded-full opacity-80"
+                                    />
+                                    <p class="text-muted">{{ getValue() }}</p>
+                                </div>
+                                
+                                <div class="flex gap-4 mt-4 min-w-20 w-full">
+                                    <UInput
+                                        v-model="editingUserForm.last_name"
+                                        size="xs"
+                                        class="w-full"
+                                        @click.stop
+                                    >
+                                        <label class="pointer-events-none absolute left-0 -top-2.5 text-highlighted text-xs font-medium px-1.5 transition-all peer-focus:-top-2.5 peer-focus:text-highlighted peer-focus:text-xs peer-focus:font-medium peer-placeholder-shown:text-sm peer-placeholder-shown:text-dimmed peer-placeholder-shown:top-1.5 peer-placeholder-shown:font-normal">
+                                            <span class="inline-flex bg-default">{{ props.__.table.cell.username.last_name }}</span>
+                                        </label>
+                                    </UInput>
+                                    <UInput 
+                                        v-model="editingUserForm.first_name"
+                                        size="xs"
+                                        class="w-full"
+                                        @click.stop
+                                    >
+                                        <label class="pointer-events-none absolute left-0 -top-2.5 text-highlighted text-xs font-medium px-1.5 transition-all peer-focus:-top-2.5 peer-focus:text-highlighted peer-focus:text-xs peer-focus:font-medium peer-placeholder-shown:text-sm peer-placeholder-shown:text-dimmed peer-placeholder-shown:top-1.5 peer-placeholder-shown:font-normal">
+                                            <span class="inline-flex bg-default">{{ props.__.table.cell.username.first_name }}</span>
+                                        </label>
+                                    </UInput>
+                                </div>
+                                <UInput
+                                    v-model="editingUserForm.job_title"
+                                    size="xs"
+                                    class="mt-4 w-full"
+                                    @click.stop
+                                >
+                                    <label class="pointer-events-none absolute left-0 -top-2.5 text-highlighted text-xs font-medium px-1.5 transition-all peer-focus:-top-2.5 peer-focus:text-highlighted peer-focus:text-xs peer-focus:font-medium peer-placeholder-shown:text-sm peer-placeholder-shown:text-dimmed peer-placeholder-shown:top-1.5 peer-placeholder-shown:font-normal">
+                                        <span class="inline-flex bg-default">{{ props.__.table.cell.username.job }}</span>
+                                    </label>
+                                </UInput>
+                                
+                            </template>
+                            
+                            <div v-else class="flex flex-col gap-1 items-start justify-center">
+                                <div class="flex gap-2">
+                                    <UBadge 
+                                        v-if="currentUserId === row.original.id" 
+                                        :label="props.__.table.cell.username.badge" 
+                                        color="success" 
+                                        size="sm"
+                                        class="rounded-full opacity-80"
+                                    />
+                                    <p class="text-muted">{{ getValue() }}</p>
+                                </div>
+                                <p v-if="row.original.first_name || row.original.last_name" class="text-xs text-sandstone"><span class="text-muted font-bold">{{ props.__.table.cell.username.name }}</span> : {{ row.original.last_name }} {{ row.original.first_name }}</p>
+                                <p v-if="row.original.job_title" class="text-xs text-sandstone"><span class="text-muted font-bold">{{ props.__.table.cell.username.job}}</span> : {{ row.original.job_title }}</p>
+                            </div>
+                        </template>
+                        <template #email-cell="{ row, getValue }">
+                            <div class="flex flex-col gap-4" v-if="editingUserId === row.original.id">
+                                <UInput
+                                    v-model="editingUserForm.email"
+                                    size="sm"
+                                    @click.stop
+                                >
+                                    <label class="pointer-events-none absolute left-0 -top-2.5 text-highlighted text-xs font-medium px-1.5 transition-all peer-focus:-top-2.5 peer-focus:text-highlighted peer-focus:text-xs peer-focus:font-medium peer-placeholder-shown:text-sm peer-placeholder-shown:text-dimmed peer-placeholder-shown:top-1.5 peer-placeholder-shown:font-normal">
+                                        <span class="inline-flex bg-default">{{ props.__.table.cell.email.label }}</span>
+                                    </label>
+                                </UInput>
+                                <PhoneInput
+                                    :countries="phoneCountries"
+                                    v-if="editingUserId === row.original.id"
+                                    size="xs"
+                                    v-model="editingUserForm.phone"
+                                    label="Téléphone"
+                                    @click.stop
+                                />
+                            </div>
+                            <div class="flex flex-col gap-2" v-else>
+                                <a
+                                    class="text-center text-white/50 hover:underline inline-flex gap-1 items-center"
+                                    :href="`mailto:${getValue()}`"
+                                >
+                                    <UIcon name="i-lucide-mail" class="size-5"/>
+                                    <p class="align-middle">{{ getValue() }}</p>
+                                </a>
+                                <a
+                                    class="text-center text-white/50 hover:underline inline-flex gap-1 items-center"
+                                    :href="`tel:+${row.original.phone.extension}${row.original.phone.phone}`"
+                                >
+                                    <UIcon name="i-lucide-phone" class="size-5"/>
+                                    <p class="align-middle">+{{ row.original.phone.extension + row.original.phone.phone}}</p>
+                                </a>
+                            </div>
+                        </template>
+                        <template #active-cell="{ row, getValue }">
+                            <USwitch 
+                                v-if="editingUserId === row.original.id"
+                                v-model="editingUserForm.active"
+                                color="success"
+                            />
+                            
+                            <UBadge
+                                v-else
+                                :label="getValue() ? props.__.table.cell.active.true : props.__.table.cell.active.false"
+                                :color="getValue() ? 'success' : 'warning'"
+                                size="sm"
+                                class="rounded-full"
+                            />
+                        </template>
+                        <template #admin_notes-cell="{ getValue, row }">
+                            
+                            <UTextarea 
+                                v-if="editingUserId === row.original.id"
+                                v-model="editingUserForm.admin_notes"
+                                @click.stop
+                                :ui="{
+                                    root: 'h-full min-w-[250px]',
+                                    base: 'h-full'
+                                }"
+                            >
+                                <label class="pointer-events-none absolute left-0 -top-2.5 text-highlighted text-xs font-medium px-1.5 transition-all peer-focus:-top-2.5 peer-focus:text-highlighted peer-focus:text-xs peer-focus:font-medium peer-placeholder-shown:text-sm peer-placeholder-shown:text-dimmed peer-placeholder-shown:top-1.5 peer-placeholder-shown:font-normal">
+                                    <span class="inline-flex bg-default">{{ props.__.table.cell.admin_notes.label }}</span>
+                                </label>
+                            </UTextarea>
+                            
+                            <div class="flex max-w-md items-start gap-2 justify-between"
+                                 v-else
+                                @click.stop="startEditingAdminNote(row.original)"
+                                @keydown.enter.stop.prevent="startEditingAdminNote(row.original)"
+                            >
+                                <p class="whitespace-pre-wrap text-sm text-white/70">
+                                    {{
+                                        isAdminNoteExpanded(row.original.id)
+                                            ? (row.original.admin_notes ?? '')
+                                            : truncate(row.original.admin_notes ?? '', 20)
+                                    }}
+                                </p>
+            
+                                <UButton
+                                    v-if="row.original.admin_notes && row.original.admin_notes.length > 20"
+                                    :icon="isAdminNoteExpanded(row.original.id) ? 'i-lucide-chevron-up' : 'i-lucide-chevron-down'"
+                                    size="xs"
+                                    color="neutral"
+                                    variant="ghost"
+                                    :aria-label="isAdminNoteExpanded(row.original.id) ? 'Réduire la note' : 'Voir la note complète'"
+                                    @click.stop="toggleAdminNote(row.original.id)"
+                                />
+                            </div>
+                        </template>
+                        <template #actions-cell="{ row }">
+                            <div class="flex justify-end gap-2">
+                                <template v-if="editingUserId === row.original.id">
+                                    <UButton 
+                                        :icon="saveEditingUserForm ? 'i-lucide-loader' : 'i-lucide-check'"
+                                        size="xs"
+                                        color="primary"
+                                        :loading="saveEditingUserForm"
+                                        @click.stop="saveEditingUser(row.original)"
+                                    />
+                                    
+                                    <UButton 
+                                        icon="i-lucide-x"
+                                        size="xs"
+                                        color="neutral"
+                                        variant="ghost"
+                                        @click.stop="cancelEditingUser"
+                                    />
+                                </template>
+                                
+                                <UButton 
+                                    v-else
+                                    icon="i-lucide-pencil"
+                                    size="xs"
+                                    color="neutral"
+                                    variant="ghost"
+                                    @click.stop="startEditingUser(row.original)"
+                                />
+                            </div>                
+                        </template>
+                    </UTable>
+                </div>
+            </UContextMenu>
+                
+            <div class="table-footer m-2 flex gap-2">
+            <p class="text-lg">{{ totalSelected }} {{ props.__.table.actions.select.connecting_word}} {{ total }} {{ props.__.table.actions.select.selected}}</p>
+            <UButton
+                v-if="totalSelected > 0"
+                variant="outline"
+                :label="props.__.table.actions.select.unselect"
+                @click="onUnselectAll"
+                class="cursor-pointer"
+            />
+        </div>
+            <div class="flex items-center justify-center w-full mt-2 gap-5">
+                <USelect
+                    v-model="perPageSelectValue"
+                    :items="perPageSelectItems"
+                    :disabled="usersLoading"
+                />
+                <UPagination 
+                    :page="currentPage"
+                    :items-per-page="perPage"
+                    :total="total"
+                    @update:page="goToPage"
+                />
+            </div>
+        </div>
+</section>
+</template>
+
+<style scoped>
+
+</style>

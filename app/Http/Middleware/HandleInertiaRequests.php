@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Http\Resources\Dashboard\AuthUserResource;
 use App\Services\Dashboard\DashboardPageRegistry;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -37,11 +38,14 @@ class HandleInertiaRequests extends Middleware
     public function share(Request $request): array
     {
         $pageMeta = $request->route()?->defaults["dashboard_page"] ?? [];
+        $user = $request->user();
         
         return [
             ...parent::share($request),
             'auth'=> [
-                'user'=> $request->user()?->only(['id', 'username', 'email']),
+                'user'=> fn () => $user
+                    ? AuthUserResource::make($user)->resolve($request)
+                    : null,
             ],
             "dashboard"=> [
                 "pages"=> fn ()=> app(DashboardPageRegistry::class)->forUser($request->user())
@@ -57,9 +61,15 @@ class HandleInertiaRequests extends Middleware
                 'info'=> fn () => $request->session()->get('info'),
                 'warning'=> fn () => $request->session()->get('warning'),
             ],
+            'app'=> [
+                'config'=> [
+                    'retention_days'=> fn () => config("app.retention_days"),
+                ]
+            ],
             "trans"=> [
                 "layout"=> trans("dashboard/layouts/sidebar")
-            ]
+            ],
+            "locale"=> app()->getLocale() ?? config("app.locale"),
         ];
     }
 }
