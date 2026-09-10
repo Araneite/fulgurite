@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Dashboard\ProfileController;
+use App\Http\Controllers\Dashboard\RoleController;
 use App\Http\Controllers\Dashboard\UserPageController;
 use App\Http\Controllers\Auth\TwoFactorController;
 use App\Http\Controllers\PluginProxyController;
@@ -49,8 +50,47 @@ Route::post('/2fa/passkey/verify', [TwoFactorController::class, 'verifyPasskey']
             "label"=> trans("pages/list.pages.profile.title"),
             "description"=> trans("pages/list.pages.profile.description"),
         ]);
-    Route::get('/security-keys', [SecurityKeyController::class, 'index'])
-        ->name('security-keys.index');
+
+    // --- Dashboard users ---
+    Route::get("/users", [UserPageController::class, "index"])
+        ->name("dashboard.users")
+        ->defaults("dashboard_page", [
+            "label"=> trans("pages/list.pages.users.title"),
+            "description"=> trans("pages/list.pages.users.description"),
+            "icon"=> "pi-users",
+            "section"=> trans("pages/list.sections.admin"),
+            "order"=> 10,
+            "permissions"=> ["users:view"],
+            "in_nav"=> true,
+        ]);
+    Route::get('/users/{user}/details', [UserPageController::class, 'details'])
+        ->withTrashed()
+        ->name('dashboard.users.details');
+    Route::get('/users/{user}', [UserPageController::class, 'show'])
+        ->withTrashed()
+        ->name('dashboard.users.show');
+    
+    // Create a new user
+    Route::post("/users", [UserPageController::class, "store"])
+        ->name("dashboard.users.store");
+    Route::patch("users/{user}/quick-edit", [UserPageController::class, "quickEdit"])
+        ->name("dashboard.users.quick-edit");
+    // Update data of user profile
+    Route::patch('/users/{user}/data', [UserPageController::class, 'updateData'])
+        ->name('dashboard.users.data.update');
+    // Update security data of user profile
+    Route::patch('/users/{user}/security', [UserPageController::class, 'updateSecurity'])
+        ->name('dashboard.users.security.update');
+    // Update administration related data of user profile
+    Route::patch('/users/{user}/admin', [UserPageController::class, 'updateAdmin'])
+        ->name('dashboard.users.admin.update');
+    Route::delete('/users/{user}/delete', [UserPageController::class, 'destroy'])
+        ->name('dashboard.users.delete');
+    
+    // --- Dashboard roles ---
+    // Get roles for select menus
+    Route::post('/roles/select-menu', [RoleController::class, 'selectMenu'])
+        ->name('dashboard.roles.select-menu');
     
     Route::post('/security-keys/options', [SecurityKeyController::class, 'options'])->name('security-keys.options');
     Route::post('/security-keys', [SecurityKeyController::class, 'store'])->name('security-keys.store');
