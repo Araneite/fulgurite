@@ -1,0 +1,26 @@
+<?php
+
+return [
+    'back'=> "Retour",
+    'create'=> "Créer",
+    'delete'=> "Supprimer",
+    'discard'=> "Fermer sans sauvegarder",
+    'cancel'=> "Annuler",
+    'close'=> "Fermer",
+    'confirm'=> "Confirmer",
+    'copy'=> "Copier",
+    'edit'=> "Modifier",
+    'fast_create'=> "Création rapide",
+    'force_delete'=> "Forcer la suppression",
+    'keep'=> "Continuer les modifications",
+    'list'=> "Lister",
+    'reactive'=> "Réactiver",
+    'restore'=> "Restaurer",
+    'renew'=> "Renouveler",
+    'revoke'=> "Révoquer",
+    'save'=> "Enregistrer",
+    'search'=> "Rechercher...",
+    'select'=> "Sélectionner",
+    'unselect'=> "Désélectionner",
+    'update'=> "Modifier",
+];

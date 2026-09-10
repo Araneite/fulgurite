@@ -10,9 +10,9 @@ enum Method2FA: string
     
     public function labelKey(): string {
         return match ($this) {
-            self::oneTimeCode => "auth/two-factor.methods.one_time_code",
-            self::email => "auth/two-factor.methods.email",
-            self::passkey => "auth/two-factor.methods.passkey",
+            self::oneTimeCode => "forms/confirmation-identity.methods.one_time_code",
+            self::email => "forms/confirmation-identity.methods.email",
+            self::passkey => "forms/confirmation-identity.methods.passkey",
         };
     }
     

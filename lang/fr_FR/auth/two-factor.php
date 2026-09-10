@@ -2,6 +2,9 @@
 
 return [
     'subtitle' => 'Confirmez votre identité pour continuer.',
+    'confirm_button' => 'Confirmer',
+    'passkey_button' => 'Utiliser la clé d’accès',
+    'resend_email_code' => 'Renvoyer le code',
     'fields' => [
         'method' => 'Méthode de vérification',
         'code' => 'Code de vérification',
@@ -10,9 +13,8 @@ return [
         "one_time_code"=> "Code à usage unique"
     ],
     'email_sent_to' => 'Code envoyé à',
-    'confirm_button' => 'Confirmer',
-    'passkey_button' => 'Utiliser la clé d’accès',
-    'resend_email_code' => 'Renvoyer le code',
+    'email_intro'=> 'Voici le code de confirmation que vous avez demandé :',
+    'email_expiration'=> 'Ce code est valable pour la durée de 10 minutes, passer ce délai vous devrez réitérer votre demande.',
     'email_code_sent' => 'Un nouveau code a été envoyé.',
     'errors' => [
         'invalid_code' => 'Le code de vérification est invalide.',

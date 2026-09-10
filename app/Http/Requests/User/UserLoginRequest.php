@@ -52,17 +52,17 @@ class UserLoginRequest extends FormRequest
     
     public function messages(): array {
         return [
-            "email.required"=> trans("auth/login.errors.email_required"),
-            "email.email"=> trans("auth/login.errors.email_invalid"),
-            "password.required"=> trans("auth/login.errors.password_required"),
-            "remember.boolean"=> trans("auth/login.errors.remember_boolean"),
+            "email.required"=> trans("forms/login.errors.email_required"),
+            "email.email"=> trans("forms/login.errors.email_invalid"),
+            "password.required"=> trans("forms/login.errors.password_required"),
+            "remember.boolean"=> trans("forms/login.errors.remember_boolean"),
         ];
     }
     
     public function attributes(): array {
         return [
-            "email"=> trans("auth/login.fields.email"),
-            "password"=> trans("auth/login.fields.password"),
+            "email"=> trans("forms/login.fields.email"),
+            "password"=> trans("forms/login.fields.password"),
         ];
     }
     

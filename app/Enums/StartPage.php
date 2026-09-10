@@ -10,9 +10,9 @@ enum StartPage :string
     
     public function labelKey(): string {
         return match ($this) {
-            self::HomePage => "pages/list.dashboard",
-            self::ProfilePage => "pages/list.profile",
-            self::LogsPage => "pages/list.logs",
+            self::HomePage => "pages/list.start_page.dashboard",
+            self::ProfilePage => "pages/list.start_page.profile",
+            self::LogsPage => "pages/list.start_page.logs",
         };
     }
     

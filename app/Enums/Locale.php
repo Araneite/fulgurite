@@ -14,6 +14,13 @@ enum Locale: string
         };
     }
     
+    public function flag(): string {
+        return match($this) {
+            self::fr_FR => "🇫🇷",
+            self::en_US => "🇺🇸"
+        };
+    }
+    
     public function label(): string {
         return trans($this->labelKey());
     }
@@ -26,6 +33,7 @@ enum Locale: string
         return array_map(
             fn (self $locale)=> [
                 "label"=> $locale->label(),
+                "icon"=> $locale->flag(),
                 "value"=> $locale->value
             ],
             self::cases()

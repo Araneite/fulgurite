@@ -150,7 +150,7 @@ class ProfileController extends Controller
         
         if (!$secret || !$totpService->verify($secret, $validated["code"])) {
             throw ValidationException::withMessages([
-                "code"=> trans("auth/two-factor.errors.invalid_code")
+                "code"=> trans("forms/confirmation-identity.errors.invalid_code")
             ]);
         }
         

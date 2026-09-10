@@ -1,6 +1,12 @@
 <?php
 
 return [
+    "start_page"=> [
+        "dashboard"=> "Tableau de bord",
+        "profile"=> "Profil",
+        "logs"=> "Journaux",
+    ],
+    
     "pages"=> [
         "dashboard"=> [
             "title"=> "Dashboard",
@@ -15,9 +21,11 @@ return [
             "description"=> "Liste des utilisateurs"
         ],
     ],
+    
     "sections"=> [
         "global"=> "Global",
         "ops"=> "Operations",
+        "admin"=> "Administration",
         "config"=> "Configurations",
         "monitoring"=> "Monitoring",
     ]
