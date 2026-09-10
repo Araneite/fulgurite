@@ -6,21 +6,23 @@ use App\Http\Controllers\Dashboard\UserPageController;
 use App\Http\Controllers\Auth\TwoFactorController;
 use App\Http\Controllers\PluginProxyController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Auth\SecurityKeyController;
+use App\Http\Controllers\Auth\InvitationAcceptanceController;
+use App\Http\Controllers\Dashboard\InvitationController;
 
 Route::get('/login', [UserPageController::class, 'showLogin'])->name('login');
 Route::post('/login', [UserPageController::class, 'login']);
 Route::get('reset-password', [UserPageController::class, 'showResetPassword'])->name('reset-password');
 
-// 2FA
-Route::get('/a2f', [TwoFactorController::class, 'show'])->name('two-factor.show');
-Route::post('/a2f', [TwoFactorController::class, 'verify'])->name('two-factor.verify');
+// === Invitations ===
+Route::get('/invitations/accept/{token}', [InvitationAcceptanceController::class, 'show'])
+    ->name('invitations.accept.show');
+Route::post('/invitations/accept/{token}', [InvitationAcceptanceController::class, 'accept'])
+    ->name('invitations.accept');
+
 Route::get('/2fa', [TwoFactorController::class, 'show'])->name('two-factor.show');
 Route::post('/2fa', [TwoFactorController::class, 'verify'])->name('two-factor.verify');
 Route::post('/a2f/method', [TwoFactorController::class, 'changeMethod'])->name('two-factor.method');
 Route::post('/a2f/email-code', [TwoFactorController::class, 'sendEmailCode'])->name('two-factor.email-code');
-Route::post('/a2f/passkey/options', [TwoFactorController::class, 'passkeyOptions'])->name('two-factor.passkey.options');
-Route::post('/a2f/passkey/verify', [TwoFactorController::class, 'verifyPasskey'])->name('two-factor.passkey.verify');
 
 Route::get('/2fa/passkey/options', [TwoFactorController::class, 'passkeyOptions'])
     ->name('two-factor.passkey.options');
@@ -92,9 +94,28 @@ Route::post('/2fa/passkey/verify', [TwoFactorController::class, 'verifyPasskey']
     Route::post('/roles/select-menu', [RoleController::class, 'selectMenu'])
         ->name('dashboard.roles.select-menu');
     
-    Route::post('/security-keys/options', [SecurityKeyController::class, 'options'])->name('security-keys.options');
-    Route::post('/security-keys', [SecurityKeyController::class, 'store'])->name('security-keys.store');
-    Route::delete('/security-keys/{credential}', [SecurityKeyController::class, 'destroy'])->name('security-keys.destroy');
+    // --- Dashboard invitations ---
+    Route::post('/users/invite', [InvitationController::class, 'store'])
+        ->name('dashboard.users.invite');
+    Route::post('users/invitations/{invite}/renew', [InvitationController::class, 'renew'])
+        ->name('dashboard.users.invitations.renew');
+    Route::post('/users/invitations/{invite}/remove-expiration', [InvitationController::class, 'removeExpiration'])
+        ->name('dashboard.users.invitations.remove-expiration');
+    Route::get('/users/invitations/{invite}/link', [InvitationController::class, 'link'])
+        ->name('dashboard.users.invitations.link');
+    Route::post('/users/invitations/{invite}/revoke', [InvitationController::class, 'revoke'])
+        ->name('dashboard.users.invitations.revoke');
+    Route::post('/users/invitations/{invite}/reactive', [InvitationController::class, 'reactive'])
+        ->name('dashboard.users.invitations.reactive');
+    Route::post('/users/invitations/{invite}/send-email', [InvitationController::class, 'sendEmail'])
+        ->name('dashboard.users.invitations.send-email');
+    Route::post('/users/invitations/{invite}/restore', [InvitationController::class, 'restore'])->withTrashed()
+        ->name('dashboard.users.invitations.restore');
+    Route::delete('/users/invitations/{invite}/delete', [InvitationController::class, 'destroy'])
+        ->name('dashboard.users.invitations.destroy');
+    Route::delete('/users/invitations/{invite}/force-delete', [InvitationController::class, 'forceDelete'])->withTrashed()
+        ->name('dashboard.users.invitations.force-delete');
+    
     // === 2FA Confirmation === 
     Route::post('/user/confirm-identity', [TwoFactorController::class, 'confirmIdentity'])
         ->name('user.confirm-identity');
