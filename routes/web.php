@@ -5,10 +5,12 @@ use App\Http\Controllers\Dashboard\RoleController;
 use App\Http\Controllers\Dashboard\UserPageController;
 use App\Http\Controllers\Auth\TwoFactorController;
 use App\Http\Controllers\PluginProxyController;
+use App\Http\Middleware\SetUserLocale;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\InvitationAcceptanceController;
 use App\Http\Controllers\Dashboard\InvitationController;
 
+// === Access ===
 Route::get('/login', [UserPageController::class, 'showLogin'])->name('login');
 Route::post('/login', [UserPageController::class, 'login']);
 Route::get('reset-password', [UserPageController::class, 'showResetPassword'])->name('reset-password');
@@ -19,6 +21,7 @@ Route::get('/invitations/accept/{token}', [InvitationAcceptanceController::class
 Route::post('/invitations/accept/{token}', [InvitationAcceptanceController::class, 'accept'])
     ->name('invitations.accept');
 
+// === 2FA ===
 Route::get('/2fa', [TwoFactorController::class, 'show'])->name('two-factor.show');
 Route::post('/2fa', [TwoFactorController::class, 'verify'])->name('two-factor.verify');
 Route::post('/a2f/method', [TwoFactorController::class, 'changeMethod'])->name('two-factor.method');
@@ -29,10 +32,11 @@ Route::get('/2fa/passkey/options', [TwoFactorController::class, 'passkeyOptions'
 Route::post('/2fa/passkey/verify', [TwoFactorController::class, 'verifyPasskey'])
     ->name('two-factor.passkey.verify');
 
-    /**
-     * === Get Methods ===
-     */
-    /* --- Global --- */
+// === Dashboard ===
+Route::middleware(['auth', SetUserLocale::class])->group(function () {
+
+    // === Dashboard routes ===
+    // --- Dashboard home ---
     Route::get("/", [UserPageController::class, "index"])
         ->name("dashboard.home")
         ->defaults("dashboard_page", [
