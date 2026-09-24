@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Models\Billing\Customer;
-use Attribute;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -26,7 +25,7 @@ use Illuminate\Notifications\Notifiable;
 ])]
 class Project extends Model
 {
-    use Notifiable, softDeletes;
+    use HasFactory, Notifiable, softDeletes;
     
     protected $table = 'fg_projects';
     
