@@ -18,6 +18,10 @@ return new class extends Migration
             $table->json('permissions')->nullable();
             $table->string('scope')->default('system'); // system, app
             
+            $table->unsignedBigInteger('project_id')->nullable();
+            $table->integer('level')->default(100);
+            $table->boolean('locked')->default(false);
+            
             $table->timestamps();
             $table->softDeletes();
         });

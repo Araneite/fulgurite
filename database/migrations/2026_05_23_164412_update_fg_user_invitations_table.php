@@ -15,9 +15,9 @@ return new class extends Migration
         
         Schema::table('fg_user_invitations', function (Blueprint $table) {
             // Drop existing relations with user
-            $table->dropForeign('fg_user_invitations_user_id_foreign');
-            $table->dropForeign('fg_user_invitations_user_setting_id_foreign');
-            $table->dropForeign('fg_user_invitations_contact_id_foreign');
+            $table->dropForeign(['user_id']);
+            $table->dropForeign(['user_setting_id']);
+            $table->dropForeign(['contact_id']);
             
             $table->dropColumn('user_id');
             $table->dropColumn('user_setting_id');
@@ -43,7 +43,7 @@ return new class extends Migration
         
         Schema::table('fg_user_invitations', function (Blueprint $table) {
             // Drop relation
-            $table->dropForeign('fg_user_invitations_accepted_user_id_foreign');
+            $table->dropForeign(['accepted_user_id']);
             $table->dropColumn('accepted_user_id');
             
             // Drop columns
