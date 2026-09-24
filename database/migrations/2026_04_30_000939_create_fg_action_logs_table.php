@@ -32,7 +32,7 @@ return new class extends Migration
             $table->json('metadata')->nullable();
             
             // Relations
-            $table->foreign('user_id')->references('id')->on('fg_users')->onDelete(null);
+            $table->foreign('user_id')->references('id')->on('fg_users')->nullOnDelete();
             
             $table->timestamps();
             
