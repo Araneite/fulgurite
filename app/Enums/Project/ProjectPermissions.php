@@ -20,7 +20,7 @@ enum ProjectPermissions: string
             self::manage => 'permissions.manage',
             self::delete => 'permissions.delete',
             self::restore => 'permissions.restore',
-            self::forceDelete => 'permissions:force-delete',
+            self::forceDelete => 'permissions.force-delete',
         };
     }
     
